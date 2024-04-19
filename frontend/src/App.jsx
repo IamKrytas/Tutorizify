@@ -7,6 +7,7 @@ import Rejestracja from "./Components/Rejestracja";
 import Profile from "./Components/Profile";
 import Wyloguj from "./Components/Wyloguj";
 import Teachers from "./Components/Teachers";
+import Reservation from  "./Components/Reservation";
 
 function App() {
   //rcfe
@@ -19,6 +20,7 @@ function App() {
             <Route path="/" element={<MainContent />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/teachers" element={<Teachers />} />
+            <Route path="reservation" element={<Reservation />} />
             <Route path="/wyloguj"element={<Wyloguj />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

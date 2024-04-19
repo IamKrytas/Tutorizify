@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { ArrowRight  } from 'react-bootstrap-icons';
+import { ArrowRight } from 'react-bootstrap-icons';
+import { Link } from 'react-router-dom';
 
 function Teachers() {
     const [teachers, setTeachers] = useState(null);
@@ -46,11 +47,9 @@ function Teachers() {
             setSelectedPrice(price);
         }
     };
-
-
     return (
-        <div className="row">
-            <div className="col-3 mx-auto">
+        <div className="row margin-top">
+            <div className="col-2 mx-auto">
                 <h2 className="text-center">Przedmioty</h2>
                 <ul className="list-group">
                     <Button variant={selectedSubject === null ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick(null)}>Wszystkie</Button>
@@ -80,7 +79,7 @@ function Teachers() {
                 </ul>
             </div>
 
-            <div className="col-md-8">
+            <div className="col-md-9">
                 <div className="row">
                     <h2 className="text-center">Nauczyciele</h2>
                     <br />
@@ -92,13 +91,15 @@ function Teachers() {
                             <div key={index} className="col-6 mb-2">
                                 <Card>
                                     <Card.Body>
-                                        <Card.Title>{teacher.name}</Card.Title>
+                                        <Card.Title className="text-center">{teacher.name}</Card.Title>
                                         <Card.Text>
                                             <strong>Subject:</strong> {teacher.subject}
                                             <br />
                                             <strong>Price:</strong> {teacher.price}
                                             <br />
-                                            <Button variant="outline-success">Zapisz się</Button>
+                                            <Link to={`/reservation?teacher=${teacher.id}`}>
+                                                <Button variant="outline-success">Zapisz się</Button>
+                                            </Link>
                                             <Button variant="outline-info">Więcej</Button>
                                         </Card.Text>
                                     </Card.Body>
