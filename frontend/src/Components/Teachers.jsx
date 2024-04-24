@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { ArrowRight } from 'react-bootstrap-icons';
+import { ArrowRight, Star, StarFill } from 'react-bootstrap-icons';
 import { Link } from 'react-router-dom';
 
 function Teachers() {
@@ -10,6 +10,7 @@ function Teachers() {
     const [selectedPrice, setSelectedPrice] = useState(null);
     // useState for if sorting is needed
     const [sorted, setSorted] = useState(false);
+    const [rating, setRating] = useState(false);
     const token = sessionStorage.getItem('jwtToken');
 
     useEffect(() => {
@@ -75,7 +76,8 @@ function Teachers() {
                 {/* sort by price */}
                 <h2 className="text-center">Sortuj</h2>
                 <ul className="list-group">
-                    <Button variant={sorted ? "primary" : "outline-primary"} onClick={() => setSorted(!sorted)}><ArrowRight /></Button>
+                    <Button variant={sorted ? "primary" : "outline-primary"} onClick={() => setSorted(!sorted)}>Cena</Button>
+                    <Button variant={rating ? "primary" : "outline-primary"} onClick={() => setRating(!rating)}>Rating</Button>
                 </ul>
             </div>
 
@@ -87,20 +89,38 @@ function Teachers() {
                         .filter(teacher => !selectedSubject || teacher.subject === selectedSubject)
                         .filter(teacher => !selectedPrice || teacher.price <= selectedPrice)
                         .sort((a, b) => sorted ? a.price - b.price : b.price - a.price)
+                        .sort((a, b) => rating ? b.rating - a.rating : a.rating - b.rating)
                         .map((teacher, index) => (
                             <div key={index} className="col-6 mb-2">
                                 <Card>
                                     <Card.Body>
-                                        <Card.Title className="text-center">{teacher.name}</Card.Title>
+                                        <Card.Title className="text-center">{teacher.name}
+                                            <div className="text-center">
+                                                {[...Array(5)].map((_, index) => (
+                                                    <span key={index}>
+                                                        {index < teacher.rating ? <StarFill /> : <Star />}
+                                                    </span>
+                                                ))}
+                                            </div>
+
+                                        </Card.Title>
+
                                         <Card.Text>
                                             <strong>Subject:</strong> {teacher.subject}
                                             <br />
                                             <strong>Price:</strong> {teacher.price}
                                             <br />
-                                            <Link to={`/reservation?teacher=${teacher.id}`}>
-                                                <Button variant="outline-success">Zapisz się</Button>
-                                            </Link>
-                                            <Button variant="outline-info">Więcej</Button>
+                                            <div className="d-flex justify-content-between align-items-end">
+                                                <div>
+                                                    <Link to={`/reservation?teacher=${teacher.id}`}>
+                                                        <Button variant="outline-success">Zapisz się</Button>
+                                                    </Link>
+                                                    <Button variant="outline-info">Więcej</Button>
+                                                </div>
+                                                <div>
+                                                    <Star size={40} style={{ verticalAlign: 'bottom' }} />
+                                                </div>
+                                            </div>
                                         </Card.Text>
                                     </Card.Body>
                                 </Card>

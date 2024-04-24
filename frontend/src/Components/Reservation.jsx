@@ -10,40 +10,43 @@ function Reservation() {
 
     useEffect(() => {
         const headers = {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         };
-    
+
         axios.get('http://localhost:5000/availability', { headers })
-          .then(response => {
-            console.log(response.data.availability);
-            setAvailability(response.data.availability);
-          })
-          .catch(error => {
-            console.error('Błąd pobierania danych o profilu:', error);
-          });
-      }, []);
-    
+            .then(response => {
+                console.log(response.data.availability);
+                setAvailability(response.data.availability);
+            })
+            .catch(error => {
+                console.error('Błąd pobierania danych o profilu:', error);
+            });
+    }, []);
+
     // Pobieramy aktualną ścieżkę URL
     const location = useLocation();
     // Pobieramy wartość parametru "teacher" z adresu URL
     const teacherName = new URLSearchParams(location.search).get("teacher");
 
     return (
-        <Container>
-            {availability.map((day, index) => (
-                <Card key={index} className="my-4">
-                    <Card.Body>
-                        <Card.Title>Dzień: {day.day}</Card.Title>
-                        <ListGroup>
-                            {day.hours.map((hour, hourIndex) => (
-                                <ListGroup.Item key={hourIndex}>{hour}</ListGroup.Item>
-                            ))}
-                        </ListGroup>
-                    </Card.Body>
-                </Card>
-            ))}
-        </Container>
+        <>
+            <h1 className="text-center">Dostępność nauczyciela {teacherName} </h1>
+            <Container>
+                {availability.map((day, index) => (
+                    <Card key={index} className="my-4">
+                        <Card.Body>
+                            <Card.Title>Dzień: {day.day}</Card.Title>
+                            <ListGroup>
+                                {day.hours.map((hour, hourIndex) => (
+                                    <ListGroup.Item key={hourIndex}>{hour}</ListGroup.Item>
+                                ))}
+                            </ListGroup>
+                        </Card.Body>
+                    </Card>
+                ))}
+            </Container>
+        </>
     );
 };
 
