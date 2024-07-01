@@ -82,16 +82,11 @@ function AboutTeacher() {
                 </div>
             <Card.Body>
               <Card.Title>{teacher.name}</Card.Title>
-              <Card.Subtitle className="mb-2 text-muted">{teacher.subject}</Card.Subtitle>
-              <Card.Text>{teacher.bio}</Card.Text>
+              <Card.Subtitle className="mb-2 text-muted">{teacher.subject} | {teacher.price}zł</Card.Subtitle>
+              
+              <Card.Text>bio: {teacher.bio}</Card.Text>
               <Card.Text>{teacher.description}</Card.Text>
               <Card.Text>Email: <a href={`mailto:${teacher.email}`}>{teacher.email}</a></Card.Text>
-              <h5>Subjects Offered:</h5>
-              <ListGroup variant="flush">
-                {teacher.classes.map((className, index) => (
-                  <ListGroup.Item key={index}>{className}</ListGroup.Item>
-                ))}
-              </ListGroup>
               <Button variant="primary" className="mt-3" href="/teachers">Back to Teachers List</Button>
             </Card.Body>
           </Card>

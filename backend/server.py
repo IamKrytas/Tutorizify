@@ -30,9 +30,13 @@ def teachers():
         teacher_dict = {
             "id": teacher[0],
             "name": teacher[1],
-            "subject": teacher[2],
-            "price": teacher[3],
-            "rating": teacher[4]
+            "bio": teacher[2],
+            "email": teacher[3],
+            "description": teacher[4],
+            "profilePicture": teacher[5],
+            "subject": teacher[6],
+            "price": teacher[7],
+            "rating": teacher[8]
         }
         teachers_data.append(teacher_dict)
     conn.close()
@@ -140,6 +144,27 @@ def logout():
     # Usuń sesję po wylogowaniu
     session.pop('email', None)
     return redirect(url_for('home'))  # Przekierowanie na stronę główną po wylogowaniu
+
+
+@app.route("/about/<int:teacher_id>", methods=["GET"])
+def about(teacher_id):
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM teachers WHERE id = ?", (teacher_id,))
+    teacher = cursor.fetchone()
+    teacher_dict = {
+        "id": teacher[0],
+        "name": teacher[1],
+        "bio": teacher[2],
+        "email": teacher[3],
+        "description": teacher[4],
+        "profilePicture": teacher[5],
+        "subject": teacher[6],
+        "price": teacher[7],
+        "rating": teacher[8]
+    }
+    conn.close()
+    return jsonify(teacher_dict), 200
 
 
 if __name__ == "__main__":
