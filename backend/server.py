@@ -148,24 +148,71 @@ def logout():
 
 @app.route("/about/<int:teacher_id>", methods=["GET"])
 def about(teacher_id):
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM teachers WHERE id = ?", (teacher_id,))
-    teacher = cursor.fetchone()
-    teacher_dict = {
-        "id": teacher[0],
-        "name": teacher[1],
-        "bio": teacher[2],
-        "email": teacher[3],
-        "description": teacher[4],
-        "profilePicture": teacher[5],
-        "subject": teacher[6],
-        "price": teacher[7],
-        "rating": teacher[8]
-    }
-    conn.close()
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Brak autoryzacji'}), 401
+    try:
+        payload = jwt.decode(token.split()[1], app.secret_key, algorithms=['HS256'])
+        email = payload['email']
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM teachers WHERE id = ?", (teacher_id,))
+        teacher = cursor.fetchone()
+        cursor.execute("SELECT COUNT(*) FROM favourite WHERE teacher_id = ? AND user_id = (SELECT id FROM users WHERE email = ?)", (teacher_id, email))
+        if cursor.fetchone()[0] == 1:
+            favourite = True
+        else:
+            favourite = False
+
+        teacher_dict = {
+            "id": teacher[0],
+            "name": teacher[1],
+            "bio": teacher[2],
+            "email": teacher[3],
+            "description": teacher[4],
+            "profilePicture": teacher[5],
+            "subject": teacher[6],
+            "price": teacher[7],
+            "rating": teacher[8],
+            "favourite": favourite
+        }
+        conn.close()
+    
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Token wygasł'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Nieprawidłowy token'}), 401
     return jsonify(teacher_dict), 200
 
+
+@app.route("/favourite/<int:teacher_id>", methods=["PUT"])
+def add_favourite(teacher_id):
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Brak autoryzacji'}), 401
+    try:
+        payload = jwt.decode(token.split()[1], app.secret_key, algorithms=['HS256'])
+        email = payload['email']
+
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM favourite WHERE teacher_id = ? AND (SELECT id FROM users WHERE email = ?)", (teacher_id, email))
+        favourite = cursor.fetchone()[0]
+        if favourite == 1:
+            cursor.execute("DELETE FROM favourite WHERE teacher_id = ? AND user_id = (SELECT id FROM users WHERE email = ?)", (teacher_id, email))
+            conn.commit()
+            conn.close()
+            return jsonify({'message': 'Nauczyciel usunięty z ulubionych'}), 200
+        else:
+            cursor.execute("INSERT INTO favourite (teacher_id, user_id) VALUES (?, (SELECT id FROM users WHERE email = ?))", (teacher_id, email))
+            conn.commit()
+            conn.close()
+            return jsonify({'message': 'Nauczyciel dodany do ulubionych'}), 200
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Token wygasł'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Nieprawidłowy token'}), 401
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
