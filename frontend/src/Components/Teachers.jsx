@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Star, StarFill } from 'react-bootstrap-icons';
 import { Link } from 'react-router-dom';
+import './personalization.css'; // Plik CSS z dodatkowymi stylami
 
 function Teachers() {
     const [teachers, setTeachers] = useState(null);
@@ -51,10 +52,10 @@ function Teachers() {
             }
             return 0; // default case
         });
-        
+
     return (
         <div className="row margin-top">
-            <div className="col-2 mx-auto">
+            <div className="col-12 col-md-2 mx-auto">
                 <h2 className="text-center">Przedmioty</h2>
                 <ul className="list-group">
                     <Button variant={selectedSubject === null ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick(null)}>Wszystkie</Button>
@@ -67,7 +68,6 @@ function Teachers() {
                     <Button variant={selectedSubject === 'Germ' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Germ')}>Germ</Button>
                 </ul>
 
-                {/* price filtrs */}
                 <h2 className="text-center">Cena</h2>
                 <ul className="list-group">
                     <Button variant={selectedPrice === null ? "primary" : "outline-primary"} onClick={() => handlePriceButtonClick(null)}>Dowolna cena</Button>
@@ -77,13 +77,13 @@ function Teachers() {
                     <Button variant={selectedPrice === 125 ? "primary" : "outline-primary"} onClick={() => handlePriceButtonClick(125)}>Do 125</Button>
                 </ul>
 
-                {/* sort by price */}
                 <h2 className="text-center">Sortuj</h2>
                 <ul className="list-group">
                     <Button variant={sortBy === 'price' ? "primary" : "outline-primary"} onClick={() => handleSortByButtonClick('price')}>Cena</Button>
                     <Button variant={sortBy === 'rating' ? "primary" : "outline-primary"} onClick={() => handleSortByButtonClick('rating')}>Rating</Button>
                 </ul>
             </div>
+
 
             <div className="col-md-9">
                 <div className="row">
@@ -113,7 +113,9 @@ function Teachers() {
                                                 <Link to={`/reservation?teacher=${teacher.id}`}>
                                                     <Button variant="outline-success">Zapisz się</Button>
                                                 </Link>
-                                                <Button variant="outline-info">Więcej</Button>
+                                                <Link to={`/about?teacher=${teacher.id}`}>
+                                                    <Button variant="outline-info">Więcej</Button>
+                                                </Link>
                                             </div>
                                             <div>
                                                 <Star size={40} style={{ verticalAlign: 'bottom' }} />

@@ -1,0 +1,15 @@
+@media (max-width: 768px) {
+    .row.margin-top {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .col-12.col-md-2.mx-auto ul.list-group {
+        display: ruby-text;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .col-12.col-md-2.mx-auto ul.list-group li {
+        flex: 1 1 30%;
+        margin: 5px;
+    }
+}
