@@ -11,8 +11,8 @@ function Profile() {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     };
-
-    axios.get('http://localhost:5000/profile', { headers })
+    const address = import.meta.env.VITE_BACKEND_URL;
+    axios.get(`${address}/profile`, { headers })
       .then(response => {
         console.log(response.data.user)
         setProfil(response.data.user);

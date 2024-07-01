@@ -21,9 +21,11 @@ function Rejestracja() {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/register', { email, username, password, confirmPassword });
+      const address = import.meta.env.VITE_BACKEND_URL;
+      const response = await axios.post(`${address}/register`, { email, username, password, confirmPassword });
       if (response.status === 200) {
         setMessage('Rejestracja zakończona sukcesem');
+        location.href = '/logowanie';
       } else {
         setMessage('Błąd serwera');
       }

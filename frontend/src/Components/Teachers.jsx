@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { ArrowRight, Star, StarFill } from 'react-bootstrap-icons';
+import { Star, StarFill } from 'react-bootstrap-icons';
 import { Link } from 'react-router-dom';
 
 function Teachers() {
     const [teachers, setTeachers] = useState(null);
     const [selectedSubject, setSelectedSubject] = useState(null);
     const [selectedPrice, setSelectedPrice] = useState(null);
-    // useState for if sorting is needed
-    const [sorted, setSorted] = useState(false);
-    const [rating, setRating] = useState(false);
+    const [sortBy, setSortBy] = useState('price'); // 'price' or 'rating'
     const token = sessionStorage.getItem('jwtToken');
 
     useEffect(() => {
@@ -19,7 +17,8 @@ function Teachers() {
             'Authorization': `Bearer ${token}`
         };
 
-        axios.get('http://localhost:5000/teachers', { headers })
+        const address = import.meta.env.VITE_BACKEND_URL;
+        axios.get(`${address}/teachers`, { headers })
             .then(response => {
                 console.log(response.data.teachers);
                 setTeachers(response.data.teachers);
@@ -30,24 +29,29 @@ function Teachers() {
     }, []);
 
     const handleSubjectButtonClick = (subject) => {
-        if (selectedSubject === subject) {
-            // Jeśli kliknięto już zaznaczony przycisk, odznacz go
-            setSelectedSubject(null);
-        } else {
-            // W przeciwnym razie zaznacz przycisk dla wybranego przedmiotu
-            setSelectedSubject(subject);
-        }
+        setSelectedSubject(subject === selectedSubject ? null : subject);
     };
 
     const handlePriceButtonClick = (price) => {
-        if (selectedPrice === price) {
-            // Jeśli kliknięto już zaznaczoną cenę, odznacz ją
-            setSelectedPrice(null);
-        } else {
-            // W przeciwnym razie zaznacz cenę dla wybranej wartości
-            setSelectedPrice(price);
-        }
+        setSelectedPrice(price === selectedPrice ? null : price);
     };
+
+    const handleSortByButtonClick = (type) => {
+        setSortBy(type);
+    };
+
+    const sortedTeachers = teachers && [...teachers]
+        .filter(teacher => !selectedSubject || teacher.subject === selectedSubject)
+        .filter(teacher => !selectedPrice || teacher.price <= selectedPrice)
+        .sort((a, b) => {
+            if (sortBy === 'price') {
+                return a.price - b.price;
+            } else if (sortBy === 'rating') {
+                return b.rating - a.rating;
+            }
+            return 0; // default case
+        });
+        
     return (
         <div className="row margin-top">
             <div className="col-2 mx-auto">
@@ -76,8 +80,8 @@ function Teachers() {
                 {/* sort by price */}
                 <h2 className="text-center">Sortuj</h2>
                 <ul className="list-group">
-                    <Button variant={sorted ? "primary" : "outline-primary"} onClick={() => setSorted(!sorted)}>Cena</Button>
-                    <Button variant={rating ? "primary" : "outline-primary"} onClick={() => setRating(!rating)}>Rating</Button>
+                    <Button variant={sortBy === 'price' ? "primary" : "outline-primary"} onClick={() => handleSortByButtonClick('price')}>Cena</Button>
+                    <Button variant={sortBy === 'rating' ? "primary" : "outline-primary"} onClick={() => handleSortByButtonClick('rating')}>Rating</Button>
                 </ul>
             </div>
 
@@ -85,52 +89,45 @@ function Teachers() {
                 <div className="row">
                     <h2 className="text-center">Nauczyciele</h2>
                     <br />
-                    {teachers && teachers
-                        .filter(teacher => !selectedSubject || teacher.subject === selectedSubject)
-                        .filter(teacher => !selectedPrice || teacher.price <= selectedPrice)
-                        .sort((a, b) => sorted ? a.price - b.price : b.price - a.price)
-                        .sort((a, b) => rating ? b.rating - a.rating : a.rating - b.rating)
-                        .map((teacher, index) => (
-                            <div key={index} className="col-6 mb-2">
-                                <Card>
-                                    <Card.Body>
-                                        <Card.Title className="text-center">{teacher.name}
-                                            <div className="text-center">
-                                                {[...Array(5)].map((_, index) => (
-                                                    <span key={index}>
-                                                        {index < teacher.rating ? <StarFill /> : <Star />}
-                                                    </span>
-                                                ))}
-                                            </div>
+                    {sortedTeachers && sortedTeachers.map((teacher, index) => (
+                        <div key={index} className="col-6 mb-2">
+                            <Card>
+                                <Card.Body>
+                                    <Card.Title className="text-center">{teacher.name}
+                                        <div className="text-center">
+                                            {[...Array(5)].map((_, index) => (
+                                                <span key={index}>
+                                                    {index < teacher.rating ? <StarFill /> : <Star />}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </Card.Title>
 
-                                        </Card.Title>
-
-                                        <Card.Text>
-                                            <strong>Subject:</strong> {teacher.subject}
-                                            <br />
-                                            <strong>Price:</strong> {teacher.price}
-                                            <br />
-                                            <div className="d-flex justify-content-between align-items-end">
-                                                <div>
-                                                    <Link to={`/reservation?teacher=${teacher.id}`}>
-                                                        <Button variant="outline-success">Zapisz się</Button>
-                                                    </Link>
-                                                    <Button variant="outline-info">Więcej</Button>
-                                                </div>
-                                                <div>
-                                                    <Star size={40} style={{ verticalAlign: 'bottom' }} />
-                                                </div>
+                                    <Card.Text>
+                                        <strong>Subject:</strong> {teacher.subject}
+                                        <br />
+                                        <strong>Price:</strong> {teacher.price}
+                                        <br />
+                                        <div className="d-flex justify-content-between align-items-end">
+                                            <div>
+                                                <Link to={`/reservation?teacher=${teacher.id}`}>
+                                                    <Button variant="outline-success">Zapisz się</Button>
+                                                </Link>
+                                                <Button variant="outline-info">Więcej</Button>
                                             </div>
-                                        </Card.Text>
-                                    </Card.Body>
-                                </Card>
-                            </div>
-                        ))
-                    }
+                                            <div>
+                                                <Star size={40} style={{ verticalAlign: 'bottom' }} />
+                                            </div>
+                                        </div>
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>
     );
-};
+}
 
 export default Teachers;

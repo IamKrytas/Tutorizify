@@ -17,7 +17,8 @@ function Logowanie() {
         const password = document.querySelector('input[name="password"]').value;
 
         try {
-            const response = await axios.post('http://localhost:5000/login', { email, password }, {
+            const address = import.meta.env.VITE_BACKEND_URL;
+            const response = await axios.post(`${address}/login`, { email, password }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`  // Dodaj nagłówek Authorization z tokenem JWT
