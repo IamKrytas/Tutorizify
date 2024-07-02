@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
+import os
 import sqlite3
 import jwt
 from datetime import datetime, timedelta
@@ -8,6 +10,7 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 app.secret_key = '0123456789'
 app.config['SESSION_TYPE'] = 'filesystem'
+app.config['UPLOAD_FOLDER'] = 'uploads/'
 CORS(app, supports_credentials=True)
 
 
@@ -213,6 +216,76 @@ def add_favourite(teacher_id):
         return jsonify({'message': 'Token wygasł'}), 401
     except jwt.InvalidTokenError:
         return jsonify({'message': 'Nieprawidłowy token'}), 401
+
+
+@app.route('/subjects', methods=['GET'])
+def get_subjects():
+    try:
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM subjects")
+        subjects = cursor.fetchall()
+        subjects_data = []
+        for subject in subjects:
+            subject_dict = {
+                "id": subject[0],
+                "name": subject[1]
+            }
+            subjects_data.append(subject_dict)
+        conn.close()
+        return jsonify({'subjects': subjects_data}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'message': 'Wystąpił błąd podczas pobierania danych'}), 500
+    
+# Funkcja do zapisania przesłanego pliku
+def save_file(file):
+    if file:
+        filename = secure_filename(file.filename)
+        if not os.path.exists(app.config['UPLOAD_FOLDER']):
+            os.makedirs(app.config['UPLOAD_FOLDER'])
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return filename
+    return None
+
+
+@app.route('/register_teacher', methods=['POST'])
+def register_teacher():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Brak autoryzacji'}), 401
+    payload = jwt.decode(token.split()[1], app.secret_key, algorithms=['HS256'])
+    email = payload['email']
+
+    data = request.form
+    file = request.files.get('profilePicture')
+
+    # Walidacja danych wejściowych
+    if len(data['bio']) > 50:
+        return jsonify({"message": "Bio must be 50 characters or less"}), 400
+
+    if len(data['description']) > 100:
+        return jsonify({"message": "Description must be 100 characters or less"}), 400
+
+    if int(data['price']) < 0:
+        return jsonify({"message": "Price must be greater than or equal to 0"}), 400
+
+    try:
+        filename = save_file(file)
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO teachers (name, bio, email, subject, description, profilePicture, price)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (data['name'], data['bio'], email, data['subject'], data['description'], filename, data['price']))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "Teacher registered successfully"}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Failed to register teacher"}), 500
+    
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

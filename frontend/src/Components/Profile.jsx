@@ -24,7 +24,6 @@ function Profile() {
 
   return (
     <Container>
-      <Row>
         <Col md={6} className="mx-auto mt-5">
           <Card>
             <Card.Body>
@@ -44,7 +43,19 @@ function Profile() {
             </Card.Body>
           </Card>
         </Col>
-      </Row>
+        {/* Wanna be a teacher? Visit here */}
+        <Col md={6} className="mx-auto mt-5">
+          <Card>
+            <Card.Body>
+              <Card.Title className="text-center">Zostań nauczycielem</Card.Title>
+              <Card.Text>
+                <p>Jeśli chcesz zostać nauczycielem, kliknij poniższy przycisk:</p>
+                <a href="/registerTeacher" className="btn btn-primary">Zarejestruj się jako nauczyciel</a>
+              </Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+          
     </Container>
   );
 }

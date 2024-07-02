@@ -13,6 +13,7 @@ function Navigation() {
                     <Nav className="me-auto">
                         <Nav.Link href="/profile">Profile</Nav.Link>
                         <Nav.Link href="/teachers">Teachers</Nav.Link>
+                        <Nav.Link href="/registerTeacher">Register as teacher</Nav.Link>
                         <Nav.Link href="/wyloguj">Wyloguj</Nav.Link>
                         {/* <Nav.Link href="#link">Link</Nav.Link>
                         <NavDropdown title="Dropdown" id="basic-nav-dropdown">

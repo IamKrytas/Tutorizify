@@ -59,13 +59,13 @@ function Teachers() {
                 <h2 className="text-center">Przedmioty</h2>
                 <ul className="list-group">
                     <Button variant={selectedSubject === null ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick(null)}>Wszystkie</Button>
-                    <Button variant={selectedSubject === 'Math' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Math')}>Math</Button>
-                    <Button variant={selectedSubject === 'Phis' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Phis')}>Phis</Button>
-                    <Button variant={selectedSubject === 'Chem' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Chem')}>Chem</Button>
-                    <Button variant={selectedSubject === 'Biol' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Biol')}>Biol</Button>
-                    <Button variant={selectedSubject === 'Geog' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Geog')}>Geog</Button>
-                    <Button variant={selectedSubject === 'Engl' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Engl')}>Engl</Button>
-                    <Button variant={selectedSubject === 'Germ' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Germ')}>Germ</Button>
+                    <Button variant={selectedSubject === 'Math' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Mathematics')}>Mathematics</Button>
+                    <Button variant={selectedSubject === 'Phis' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Physics')}>Physics</Button>
+                    <Button variant={selectedSubject === 'Chem' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Chemistry')}>Chemistry</Button>
+                    <Button variant={selectedSubject === 'Biol' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Biology')}>Biology</Button>
+                    <Button variant={selectedSubject === 'Geog' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Geography')}>Geography</Button>
+                    <Button variant={selectedSubject === 'Engl' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('English')}>EnEnglishgl</Button>
+                    <Button variant={selectedSubject === 'Germ' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('German')}>German</Button>
                 </ul>
 
                 <h2 className="text-center">Cena</h2>
