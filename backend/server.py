@@ -50,6 +50,34 @@ def teachers():
 def availability():
     return jsonify({'availability': [{'day': '01.01.2024', 'hours': ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00']}, {'day': '02.01.2024', 'hours': ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00']}, {'day': '03.01.2024', 'hours': ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00']}]}), 200
 
+@app.route('/update_availability', methods=['PUT'])
+def update_availability():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Brak autoryzacji'}), 401
+    try:
+        payload = jwt.decode(token.split()[1], app.secret_key, algorithms=['HS256'])
+        email = payload['email']
+
+
+        data = request.get_json()
+        parsed_data = {}
+    
+        for entry in data['selected']:
+            number, time = entry.split('-')
+            if number not in parsed_data:
+                parsed_data[number] = []
+            parsed_data[number].append(time)
+        print(parsed_data)
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Token wygasł'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Nieprawidłowy token'}), 401
+
+
+
+    return jsonify({'message': 'Availability updated'}), 200
 
 @app.route('/profile', methods=['GET'])
 def profile():
