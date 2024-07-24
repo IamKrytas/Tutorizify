@@ -48,7 +48,40 @@ def teachers():
         
 @app.route('/availability', methods=['GET'])
 def availability():
-    return jsonify({'availability': [{'day': '01.01.2024', 'hours': ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00']}, {'day': '02.01.2024', 'hours': ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00']}, {'day': '03.01.2024', 'hours': ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00']}]}), 200
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Brak autoryzacji'}), 401
+    try:
+        payload = jwt.decode(token.split()[1], app.secret_key, algorithms=['HS256'])
+        email = payload['email']
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+        user = cursor.fetchone()
+        if user:
+            user_id = user[0]
+            cursor.execute("SELECT * FROM availability WHERE user_id = ?", (user_id,))
+            availability = cursor.fetchall()
+            availability_data = {}
+            for day in range(1, 8):
+                availability_data[str(day)] = []
+            for entry in availability:
+                availability_data[str(entry[2])].append(str(entry[3]))
+            conn.close()
+            print(availability_data)
+            return jsonify({'availability': availability_data}), 200
+        else:
+            conn.close()
+            return jsonify({'message': 'User not found'}), 404
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Token wygasł'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Nieprawidłowy token'}), 401
+    
+
+
+
+
 
 @app.route('/update_availability', methods=['PUT'])
 def update_availability():
@@ -56,19 +89,41 @@ def update_availability():
     if not token:
         return jsonify({'message': 'Brak autoryzacji'}), 401
     try:
-        payload = jwt.decode(token.split()[1], app.secret_key, algorithms=['HS256'])
-        email = payload['email']
-
-
         data = request.get_json()
         parsed_data = {}
     
         for entry in data['selected']:
-            number, time = entry.split('-')
-            if number not in parsed_data:
-                parsed_data[number] = []
-            parsed_data[number].append(time)
+            day, hour = entry.split('-')
+            if day not in parsed_data:
+                parsed_data[day] = []
+            parsed_data[day].append(hour)
         print(parsed_data)
+
+        payload = jwt.decode(token.split()[1], app.secret_key, algorithms=['HS256'])
+        email = payload['email']
+
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+        user = cursor.fetchone()
+
+        if user:
+            user_id = user[0]
+            # cursor.execute("DELETE FROM availability WHERE user_id = ?", (user_id,))
+
+            for day, hours in parsed_data.items():
+                for hour in hours:
+                    cursor.execute(
+                        "INSERT INTO availability (user_id, day, hour) VALUES (?, ?, ?)",
+                        (user_id, day, hour)
+                    )
+            conn.commit()
+            conn.close()
+
+            return jsonify({'message': 'Availability updated'}), 200
+        else:
+            conn.close()
+            return jsonify({'message': 'User not found'}), 404
 
     except jwt.ExpiredSignatureError:
         return jsonify({'message': 'Token wygasł'}), 401
@@ -76,8 +131,33 @@ def update_availability():
         return jsonify({'message': 'Nieprawidłowy token'}), 401
 
 
+@app.route('/delete_availability', methods=['DELETE'])  
+def delete_availability():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Brak autoryzacji'}), 401
+    try:
+        payload = jwt.decode(token.split()[1], app.secret_key, algorithms=['HS256'])
+        email = payload['email']
 
-    return jsonify({'message': 'Availability updated'}), 200
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+        user = cursor.fetchone()
+        if user:
+            user_id = user[0]
+            cursor.execute("DELETE FROM availability WHERE user_id = ?", (user_id,))
+            conn.commit()
+            conn.close()
+            return jsonify({'message': 'Availability deleted'}), 200
+        else:
+            conn.close()
+            return jsonify({'message': 'User not found'}), 404
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Token wygasł'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Nieprawidłowy token'}), 401
+
 
 @app.route('/profile', methods=['GET'])
 def profile():
