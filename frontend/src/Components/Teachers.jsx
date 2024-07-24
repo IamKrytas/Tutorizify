@@ -64,7 +64,7 @@ function Teachers() {
                     <Button variant={selectedSubject === 'Chem' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Chemistry')}>Chemistry</Button>
                     <Button variant={selectedSubject === 'Biol' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Biology')}>Biology</Button>
                     <Button variant={selectedSubject === 'Geog' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('Geography')}>Geography</Button>
-                    <Button variant={selectedSubject === 'Engl' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('English')}>EnEnglishgl</Button>
+                    <Button variant={selectedSubject === 'Engl' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('English')}>English</Button>
                     <Button variant={selectedSubject === 'Germ' ? "primary" : "outline-primary"} onClick={() => handleSubjectButtonClick('German')}>German</Button>
                 </ul>
 

@@ -4,8 +4,13 @@ import { Container, Row, Col, Card, Button, Modal } from 'react-bootstrap';
 
 function Profile() {
   const [profil, setProfil] = useState(null);
-  const token = sessionStorage.getItem('jwtToken');
+  const [reservated, setReservated] = useState([]);
+  const [selected, setSelected] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const token = sessionStorage.getItem('jwtToken');
+
+  const hours = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
+  const numbers = [1, 2, 3, 4, 5, 6, 7];
 
   // Pobieranie danych o użytkowniku
   useEffect(() => {
@@ -30,7 +35,6 @@ function Profile() {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     };
-
     const address = import.meta.env.VITE_BACKEND_URL;
     axios.get(`${address}/availability`, { headers })
       .then(response => {
@@ -50,19 +54,9 @@ function Profile() {
         reservated.push(`${day}-${hour}`);
       });
     }
-    console.log(reservated)
+    console.log(reservated);
     return reservated;
   };
-  const [reservated, setReservated] = useState([]);
-
-
-
-  // Tworzenie siatki przycisków
-  // const reservated = ['1-16:00', '2-17:00', '3-17:00', '4-17:00', '5-19:00', '6-19:00', '7-16:00'];,
-  const hours = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
-  const numbers = [1, 2, 3, 4, 5, 6, 7];
-  const [selected, setSelected] = useState([]);
-
 
   const handleButtonClick = (value) => {
     setSelected((prevSelected) => {
@@ -76,22 +70,19 @@ function Profile() {
 
   const handleSaveAvailability = async (e) => {
     e.preventDefault();
-
     try {
       const address = import.meta.env.VITE_BACKEND_URL;
       const response = await axios.put(`${address}/update_availability`, { selected }, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`  // Dodaj nagłówek Authorization z tokenem JWT
+          'Authorization': `Bearer ${token}`
         }
       });
       if (response.status === 200) {
-        console.log(response)
+        console.log(response);
         location.reload();
-      }
-      else {
-        // Add comunication with user about error
-        console.log(response)
+      } else {
+        console.log(response);
       }
     } catch (error) {
       console.error('Błąd zapisu dostępności:', error);
@@ -111,29 +102,25 @@ function Profile() {
     deleteAllAvailability();
   };
 
-
   const deleteAllAvailability = async () => {
     try {
       const address = import.meta.env.VITE_BACKEND_URL;
       const response = await axios.delete(`${address}/delete_availability`, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`  // Dodaj nagłówek Authorization z tokenem JWT
+          'Authorization': `Bearer ${token}`
         }
       });
       if (response.status === 200) {
-        console.log(response)
+        console.log(response);
         location.reload();
-      }
-      else {
-        // Add comunication with user about error
-        console.log(response)
+      } else {
+        console.log(response);
       }
     } catch (error) {
       console.error('Błąd usuwania dostępności:', error);
     }
   };
-
 
   const rows = hours.map((hour, rowIndex) => (
     <div key={rowIndex} className="row g-0">
@@ -155,9 +142,7 @@ function Profile() {
                   handleButtonClick(value);
                 }
               }}
-            // disabled={isReserved}
             >
-              {/* Puste pole - brak tekstu */}
             </button>
           </div>
         );
@@ -165,7 +150,6 @@ function Profile() {
     </div>
   ));
 
-  // Dodanie napisów na dole
   const bottomNumbers = (
     <div className="row g-0">
       <div className="col-2"></div>
@@ -176,7 +160,6 @@ function Profile() {
       ))}
     </div>
   );
-
 
   return (
     <Container>
@@ -206,7 +189,6 @@ function Profile() {
             {rows}
             {bottomNumbers}
             <Button className="btn btn-primary mt-2" onClick={handleSaveAvailability}>Zapisz dostępność</Button>
-            {/* <Button className='btn btn-danger mt-2' onClick={() => setSelected([])}>Wyczyść</Button> */}
             <Button className='btn btn-danger mt-2' onClick={handleDeleteClick}>Usuń dostępność</Button>
             <Modal show={showModal} onHide={handleCloseModal}>
               <Modal.Header closeButton>
@@ -236,7 +218,6 @@ function Profile() {
           </Card.Body>
         </Card>
       </Col>
-
     </Container>
   );
 }

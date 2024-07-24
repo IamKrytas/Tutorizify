@@ -13,8 +13,8 @@ function Reservation() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         };
-
-        axios.get('http://localhost:5000/availability', { headers })
+        const address = import.meta.env.VITE_BACKEND_URL;
+        axios.get(`${address}/availability`, { headers })
             .then(response => {
                 console.log(response.data.availability);
                 setAvailability(response.data.availability);
