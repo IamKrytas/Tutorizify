@@ -1,2 +1,10 @@
-#Uploads files
+#folders
 /uploads
+__pycache__/
+
+#files
+static.py
+random_teachers.py
+hashallpasswordfromdb.py
+fetch_all.py
+add.py
