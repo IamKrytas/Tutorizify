@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Modal, Alert } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import moment from 'moment';
-import { sendBookingData } from '../../api/booking';
+import { sendBookingData } from '../../api/bookingsApi';
 import CustomDialog from "../CustomDialog";
 import CustomAlert from '../CustomAlert';
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button, Alert, Card, Spinner } from 'react-bootstrap';
 import moment from 'moment';
-import { fetchUserBookings, cancelBooking } from '../api/booking';
+import { fetchUserBookings, cancelBooking } from '../api/bookingsApi';
 import { useNavigate } from 'react-router-dom';
 import CustomDialog from './CustomDialog';
 import CustomAlert from './CustomAlert';

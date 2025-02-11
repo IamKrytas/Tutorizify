@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Alert, Spinner } from 'react-bootstrap';
 import moment from 'moment';
-import { fetchAllBookings } from '../../api/booking';
+import { fetchAllBookings } from '../../api/bookingsApi';
 import CustomAlert from '../CustomAlert';
 
 const AdminManageBookingsScreen = () => {

@@ -5,7 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Dialog from 'react-native-dialog';
-import { sendBookingData } from '../../api/booking';
+import { sendBookingData } from '../../api/bookingsApi';
 
 const BookingScreen = () => {
   const router = useRouter();

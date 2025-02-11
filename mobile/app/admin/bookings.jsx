@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
-import { fetchAllBookings } from '../../api/booking';
+import { fetchAllBookings } from '../../api/bookingsApi';
 
 const AdminManageBookingsScreen = () => {
   const [futureBookings, setFutureBookings] = useState([]);
