@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 def create_app():
     load_dotenv()
 
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='dist', static_url_path='')
     CORS(app, supports_credentials=True)
     app.config.from_pyfile('../config.py')
 
