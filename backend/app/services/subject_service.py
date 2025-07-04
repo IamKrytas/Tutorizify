@@ -1,17 +1,35 @@
-def subjects_service():
-    pass
+from app.models.subject_model import *
+
 
 def get_all_subjects_service():
-    pass
+    all_subjects = get_all_subjects_model()
+    all_subjects_data = []
+    for subject in all_subjects:
+        subject_data = {
+            "id": subject["id"],
+            "name": subject["name"]
+        }
+        all_subjects_data.append(subject_data)
+    return all_subjects_data
 
-def add_subject_service():
-    pass
-
-def update_subject_service():
-    pass
-
-def change_status_subject_service():
-    pass
 
 def get_all_levels_service():
-    pass
+    all_levels = get_all_levels_model()
+    all_levels_data = []
+    for level in all_levels:
+        level_data = {
+            "id": level["id"],
+            "name": level["name"]
+        }
+        all_levels_data.append(level_data)
+    return all_levels_data
+
+
+def add_subject_service(data):
+    result = add_subject_model(data)
+    return result
+
+
+def update_subject_service(data):
+    result = update_subject_model(data)
+    return result
