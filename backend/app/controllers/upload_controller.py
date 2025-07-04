@@ -1,7 +1,8 @@
-from flask import Blueprint
+from flask import Blueprint, send_from_directory, current_app
 
 upload_bp = Blueprint('upload_bp', __name__)
 
-@upload_bp.route('/uploads/<filename>', methods=['GET'])
-def get_upload_controller(filename):
-    pass
+
+@upload_bp.route('/uploads/<filename>')
+def upload_file(filename):
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
