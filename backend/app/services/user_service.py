@@ -19,9 +19,13 @@ def get_user_info_service():
     return user
 
 
-def get_profile_service():
-    user = get_profile_model()
+def get_user_profile_service():
+    user = get_user_profile_model()
     return user
+
+def get_roles_service():
+    roles = get_roles_model()
+    return roles
 
 
 def update_profile_service(data):
@@ -29,18 +33,13 @@ def update_profile_service(data):
     return result
 
 
-def change_email_service(data):
-    result = change_email_model(data)
+def update_email_service(data):
+    result = update_email_model(data)
     return result
 
 
-def change_password_service(data):
-    result = change_password_model(data)
-    return result
-
-
-def delete_account_service():
-    result = delete_account_model()
+def update_password_service(data):
+    result = update_password_model(data)
     return result
 
 
@@ -49,11 +48,11 @@ def update_avatar_service(avatar):
     return result
 
 
-def get_roles_service():
-    roles = get_roles_model()
-    return roles
+def update_role_service(data):
+    result = update_role_model(data)
+    return result
 
 
-def change_role_service(data):
-    result = change_role_model(data)
+def delete_account_service():
+    result = delete_account_model()
     return result

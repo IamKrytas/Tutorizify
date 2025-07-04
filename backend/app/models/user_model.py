@@ -20,6 +20,10 @@ def get_users_model():
     """
     cursor.execute(query)
     users = cursor.fetchall()
+
+    if not users:
+        raise ValueError("Nie znaleziono żadnych użytkowników")
+    
     cursor.close()
     conn.close()
     return users
@@ -31,23 +35,49 @@ def get_user_info_model():
     email = 'admin' # It will be replaced
     cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
+
+    if not user:
+        raise ValueError("Użytkownik nie został znaleziony")
+    
     avatar = user['avatar']
+
     if avatar:
         user['avatar'] = f"{os.getenv('LOCALHOST')}/static/avatars/{avatar}"
     else:
         user['avatar'] = None
+
+    cursor.close()
     conn.close()
     return user
 
 
-def get_profile_model():
+def get_user_profile_model():
     conn = get_mysql_connection()
     cursor = conn.cursor(dictionary=True)
     email = 'admin'  # It will be replaced
     cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
+
+    if not user:
+        raise ValueError("Użytkownik nie został znaleziony")
+    
+    cursor.close()
     conn.close()
     return user
+
+
+def get_roles_model():
+    conn = get_mysql_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM roles")
+    roles = cursor.fetchall()
+
+    if not roles:
+        raise ValueError("Nie znaleziono żadnych ról")
+    
+    cursor.close()
+    conn.close()
+    return roles
 
 
 def update_profile_model(data):
@@ -56,39 +86,52 @@ def update_profile_model(data):
     email = 'admin'  # It will be replaced
     cursor.execute("UPDATE users SET username = %s WHERE email = %s", (data['username'], email))
     conn.commit()
+
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się zaktualizować profilu")
+    
+    cursor.close()
     conn.close()
-    return "Profile updated successfully"
+    return "Profil został zaktualizowany pomyślnie"
 
 
-def change_email_model(data):
+def update_email_model(data):
     conn = get_mysql_connection()
     cursor = conn.cursor()
     email = 'admin' # It will be replaced
 
     # Check if the new email already exists
     cursor.execute("SELECT COUNT(*) FROM users WHERE email = %s", (data['email'],))
+
     if cursor.fetchone()[0] > 0:
-        return "Email already exists"
+        raise ValueError("Użytkownik z tym adresem e-mail już istnieje")
 
     # Fetch user's current hashed password
     cursor.execute("SELECT password FROM users WHERE email = %s", (email,))
     result = cursor.fetchone()
+
     if not result:
-        return "User not found"
+        raise ValueError("Użytkownik nie został znaleziony")
 
     hashed_password = result[0]
 
-        # Verify password
+    # Verify password
     if not bcrypt.checkpw(data['password'].encode('utf-8'), hashed_password.encode('utf-8')):
-        return "Incorrect password"
+        raise ValueError("Nieprawidłowe hasło")
 
     # Zmień email
     cursor.execute("UPDATE users SET email = %s WHERE email = %s", (data['email'], email))
     conn.commit()
-    return "Email changed successfully"
+
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się zmienić adresu e-mail")
+    
+    cursor.close()
+    conn.close()
+    return "Adres e-mail został zmieniony pomyślnie"
 
 
-def change_password_model(data):
+def update_password_model(data):
     conn = get_mysql_connection()
     cursor = conn.cursor()
     email = 'admin'  # It will be replaced
@@ -100,13 +143,13 @@ def change_password_model(data):
     result = cursor.fetchone()
     if not result:
         conn.close()
-        return "User not found"
+        raise ValueError("Użytkownik nie został znaleziony")
     hashed_old_password = result[0]
 
     # Verify old password
     if not bcrypt.checkpw(old_password.encode('utf-8'), hashed_old_password.encode('utf-8')):
         conn.close()
-        return "Incorrect old password"
+        raise ValueError("Stare hasło jest nieprawidłowe")
     
     # Hash the new password
     hashed_new_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -114,30 +157,13 @@ def change_password_model(data):
     # Update the password in the database
     cursor.execute("UPDATE users SET password = %s WHERE email = %s", (hashed_new_password, email))
     conn.commit()
+
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się zmienić hasła")
+    
+    cursor.close()
     conn.close()
-    return "Password changed successfully"
-
-
-def delete_account_model():
-    conn = get_mysql_connection()
-    cursor = conn.cursor()
-    email = 'admin'  # It will be replaced
-
-    # Delete bookings associated with the user
-    cursor.execute("DELETE FROM bookings WHERE user_id = (SELECT id FROM users WHERE email = %s)", (email,))
-
-    # Delete teachers associated with the user
-    cursor.execute("DELETE FROM teachers WHERE user_id = (SELECT id FROM users WHERE email = %s)", (email,))
-
-    # Delete ratings associated with the user
-    cursor.execute("DELETE FROM ratings WHERE user_id = (SELECT id FROM users WHERE email = %s)", (email,))
-
-    # Delete the user
-    cursor.execute("DELETE FROM users WHERE email = %s", (email,))
-
-    conn.commit()
-    conn.close()
-    return "Account deleted successfully"
+    return "Hasło zostało zmienione pomyślnie"
 
 
 def update_avatar_model(avatar):
@@ -158,21 +184,16 @@ def update_avatar_model(avatar):
     # Update the user's avatar name in the database
     cursor.execute("UPDATE users SET avatar = %s WHERE email = %s", (avatar_filename, email))
     conn.commit()
-    conn.close()
-    return "Avatar updated successfully"
 
-
-def get_roles_model():
-    conn = get_mysql_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM roles")
-    roles = cursor.fetchall()
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się zaktualizować awatara")
+    
     cursor.close()
     conn.close()
-    return roles
+    return "Awatar został zaktualizowany pomyślnie"
 
 
-def change_role_model(data):
+def update_role_model(data):
     conn = get_mysql_connection()
     cursor = conn.cursor()
 
@@ -183,5 +204,36 @@ def change_role_model(data):
     # Update the user's role
     cursor.execute("UPDATE users SET role_id = %s WHERE id = %s", (role_id, data['user_id']))
     conn.commit()
+
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się zmienić roli użytkownika")
+    
     cursor.close()
-    return "Role changed successfully"
+    conn.close()
+    return "Rola użytkownika została zmieniona pomyślnie"
+
+
+def delete_account_model():
+    conn = get_mysql_connection()
+    cursor = conn.cursor()
+    email = 'admin'  # It will be replaced
+
+    # Delete bookings associated with the user
+    cursor.execute("DELETE FROM bookings WHERE user_id = (SELECT id FROM users WHERE email = %s)", (email,))
+
+    # Delete teachers associated with the user
+    cursor.execute("DELETE FROM teachers WHERE user_id = (SELECT id FROM users WHERE email = %s)", (email,))
+
+    # Delete ratings associated with the user
+    cursor.execute("DELETE FROM ratings WHERE user_id = (SELECT id FROM users WHERE email = %s)", (email,))
+
+    # Delete the user
+    cursor.execute("DELETE FROM users WHERE email = %s", (email,))
+    conn.commit()
+
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się usunąć konta")
+
+    cursor.close()
+    conn.close()
+    return "Konto zostało usunięte pomyślnie"
