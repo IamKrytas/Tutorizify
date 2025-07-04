@@ -75,28 +75,6 @@ def get_my_teacher_profile_service():
     return profile_data
 
 
-def update_my_teacher_profile_service(data):
-    received_data = data
-    result = update_my_teacher_profile_model(received_data)
-    return result
-    
-
-def change_status_teacher_by_id_service(teacher_id):
-    result = change_status_teacher_by_id_model(teacher_id)
-    return result
-
-
-def delete_teacher_by_id_service(teacher_id):
-    result = delete_teacher_by_id_model(teacher_id)
-    return result
-
-
-def rate_teacher_by_id_service(teacher_id, data):
-    received_data = data
-    result = rate_teacher_by_id_model(teacher_id, received_data)
-    return result
-
-
 def get_all_rates_service():
     raw_rates = get_all_rates_model()
     rates_data = []
@@ -110,6 +88,28 @@ def get_all_rates_service():
             "date": rate["date"]
         })
     return rates_data
+
+
+def rate_teacher_by_id_service(teacher_id, data):
+    received_data = data
+    result = rate_teacher_by_id_model(teacher_id, received_data)
+    return result
+
+
+def update_my_teacher_profile_service(data):
+    received_data = data
+    result = update_my_teacher_profile_model(received_data)
+    return result
+    
+
+def update_status_teacher_by_id_service(teacher_id):
+    result = update_status_teacher_by_id_model(teacher_id)
+    return result
+
+
+def delete_teacher_by_id_service(teacher_id):
+    result = delete_teacher_by_id_model(teacher_id)
+    return result
 
 
 def delete_rate_by_id_service(rate_id):

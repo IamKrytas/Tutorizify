@@ -23,7 +23,10 @@ def get_teachers_model():
     """
     cursor.execute(query)
     result = cursor.fetchall()
+    if not result:
+        raise ValueError("Nie znaleziono żadnych aktywnych nauczycieli")
     cursor.close()
+    conn.close()
     return result
 
 
@@ -51,7 +54,12 @@ def get_all_teachers_model():
         """
     cursor.execute(query)
     result = cursor.fetchall()
+
+    if not result:
+        raise ValueError("Nie znaleziono żadnych nauczycieli")
+    
     cursor.close()
+    conn.close()
     return result
 
 
@@ -81,7 +89,12 @@ def get_about_by_id_model(teacher_id):
         """
     cursor.execute(query, (teacher_id,))
     result = cursor.fetchone()
+
+    if not result:
+        raise ValueError("Nie znaleziono nauczyciela o podanym ID")
+    
     cursor.close()
+    conn.close()
     return result
     
 
@@ -109,8 +122,85 @@ def get_my_teacher_profile_model():
         """
     cursor.execute(query, (email,))
     result = cursor.fetchone()
+
+    if not result:
+        raise ValueError("Nie znaleziono profilu nauczyciela dla tego użytkownika")
+    
     cursor.close()
+    conn.close()
     return result
+
+
+def get_all_rates_model():
+    conn = get_mysql_connection()
+    cursor = conn.cursor(dictionary=True)
+    query = """
+        SELECT 
+            ratings.id,
+            teachers.name AS teacher_name,
+            users.username AS user_name,
+            ratings.rating,
+            ratings.comment,
+            ratings.created_at as date
+        FROM ratings
+        JOIN teachers ON ratings.teacher_id = teachers.id
+        JOIN users ON ratings.user_id = users.id
+        """
+    cursor.execute(query)
+    result = cursor.fetchall()
+
+    if not result:
+        raise ValueError("Nie znaleziono żadnych ocen")
+    
+    cursor.close()
+    conn.close()
+    return result
+
+
+def rate_teacher_by_id_model(teacher_id, data):
+    conn = get_mysql_connection()
+    cursor = conn.cursor(dictionary=True)
+    email = "admin"
+
+    # Fetch the user ID
+    cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
+    user = cursor.fetchone()
+
+    if not user:
+        raise ValueError("Nie znaleziono użytkownika o podanym emailu")
+    
+    user_id = user['id']
+
+    # Check if the user has already rated the teacher
+    cursor.execute("SELECT COUNT(*) FROM ratings WHERE teacher_id = %s AND user_id = %s", (teacher_id, user_id))
+    rated = cursor.fetchone()["COUNT(*)"]
+
+    if rated:
+        raise ValueError("Nie możesz ocenić tego nauczyciela więcej niż raz")
+    
+    # Insert the rating
+    cursor.execute("INSERT INTO ratings (teacher_id, user_id, rating, comment) VALUES (%s, %s, %s, %s)", (teacher_id, user_id, data['rating'], data['comment']))
+    conn.commit()
+
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się dodać oceny dla nauczyciela")
+
+    # Count new teacher rating 
+    cursor.execute("SELECT AVG(rating) FROM ratings WHERE teacher_id = %s", (teacher_id,))
+    new_average_rating = cursor.fetchone()["AVG(rating)"]
+    new_average_rating = round(new_average_rating, 2)
+
+    # Update the teacher's rating
+    cursor.execute("UPDATE teachers SET rating = %s WHERE id = %s", (new_average_rating, teacher_id))
+    conn.commit()
+
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się zaktualizować oceny nauczyciela")
+    
+    cursor.close()
+    conn.close()
+    return "Ocena dodana pomyślnie"
+
 
 def update_my_teacher_profile_model(data):
     conn = get_mysql_connection()
@@ -120,14 +210,23 @@ def update_my_teacher_profile_model(data):
     # Fetch the ID for the subject
     cursor.execute("SELECT id FROM subjects WHERE name = %s", (data['subject'],))
     subject_id = cursor.fetchone()
+    if not subject_id:
+        raise ValueError("Nie znaleziono przedmiotu o podanej nazwie")
 
     # Fetch the ID for the level
     cursor.execute("SELECT id FROM subject_level WHERE name = %s", (data['level'],))
     level_id = cursor.fetchone()
 
+    if not level_id:
+        raise ValueError("Nie znaleziono poziomu o podanej nazwie")
+
     # Fetch the user ID
     cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
+
+    if not user:
+        raise ValueError("Nie znaleziono użytkownika o podanym emailu")
+    
     cursor.execute(
         """
         UPDATE teachers
@@ -149,11 +248,16 @@ def update_my_teacher_profile_model(data):
         user['id'] if user else None
     ))
     conn.commit()
+
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się zaktualizować profilu nauczyciela. Sprawdź, czy dane są poprawne")
+    
     cursor.close()
-    return "Profile updated successfully"
+    conn.close()
+    return "Profil nauczyciela zaktualizowany pomyślnie"
 
 
-def change_status_teacher_by_id_model(teacher_id):
+def update_status_teacher_by_id_model(teacher_id):
     conn = get_mysql_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -161,20 +265,35 @@ def change_status_teacher_by_id_model(teacher_id):
     cursor.execute("UPDATE teachers SET status = NOT status WHERE id = %s", (teacher_id,))
     conn.commit()
 
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się zmienić statusu nauczyciela")
+
     # Add notification for the teacher
     cursor.execute("SELECT user_id FROM teachers WHERE id = %s", (teacher_id,))
     user_id = cursor.fetchone()['user_id']
 
+    if not user_id:
+        raise ValueError("Nie znaleziono użytkownika dla tego nauczyciela")
+
     # Get the status of the teacher
     cursor.execute("SELECT status FROM teachers WHERE id = %s", (teacher_id,))
     status = cursor.fetchone()['status']
+
+    if status is None:
+        raise ValueError("Nie udało się pobrać statusu nauczyciela")
+
     if status == 1:
         cursor.execute("INSERT INTO notifications (user_id, message) VALUES (%s, 'Twoje konto nauczycielskie zostało aktywowane')", (user_id,))
     else:
         cursor.execute("INSERT INTO notifications (user_id, message) VALUES (%s, 'Twoje konto nauczycielskie zostało zdezaktywowane')", (user_id,))
     conn.commit()
+
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się dodać powiadomienia dla nauczyciela")
+    
     cursor.close()
-    return "Status changed successfully"
+    conn.close()
+    return "Status nauczyciela zmieniony pomyślnie"
 
 
 def delete_teacher_by_id_model(teacher_id):
@@ -184,75 +303,36 @@ def delete_teacher_by_id_model(teacher_id):
     # Delete all reservations for the teacher
     cursor.execute("DELETE FROM bookings WHERE teacher_id = %s", (teacher_id,))
 
+    if cursor.rowcount == 0:
+        raise ValueError("Nie znaleziono rezerwacji dla tego nauczyciela")
+
     # Delete all ratings for the teacher
     cursor.execute("DELETE FROM ratings WHERE teacher_id = %s", (teacher_id,))
+    
+    if cursor.rowcount == 0:
+        raise ValueError("Nie znaleziono ocen dla tego nauczyciela")
 
     # Add norification for the teacher
     cursor.execute("INSERT INTO notifications (user_id, message) VALUES ((SELECT user_id FROM teachers WHERE id = %s), 'Twoje konto nauczycielskie zostało usunięte')", (teacher_id ,))
+    
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się dodać powiadomienia o usunięciu konta nauczyciela")
 
     # Set role to user
     cursor.execute("UPDATE users SET role_id = 3 WHERE email = (SELECT email FROM teachers WHERE id = %s)", (teacher_id,))
+    
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się zaktualizować roli użytkownika")
 
     # Delete the teacher
     cursor.execute("DELETE FROM teachers WHERE id = %s", (teacher_id,))
 
-    conn.commit()
+    if cursor.rowcount == 0:
+        raise ValueError("Nie znaleziono nauczyciela o podanym ID")
+
     cursor.close()
-    return "Teacher deleted successfully"
-    
-
-def rate_teacher_by_id_model(teacher_id, data):
-    conn = get_mysql_connection()
-    cursor = conn.cursor(dictionary=True)
-    email = "admin"
-
-    # Fetch the user ID
-    cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
-    user = cursor.fetchone()
-    if not user:
-        return "User not found"
-    user_id = user['id']
-
-    # Check if the user has already rated the teacher
-    cursor.execute("SELECT COUNT(*) FROM ratings WHERE teacher_id = %s AND user_id = %s", (teacher_id, user_id))
-    rated = cursor.fetchone()["COUNT(*)"]
-    if rated:
-        return "User has already rated this teacher"
-    
-    # Insert the rating
-    cursor.execute("INSERT INTO ratings (teacher_id, user_id, rating, comment) VALUES (%s, %s, %s, %s)", (teacher_id, user_id, data['rating'], data['comment']))
-    
-    # Count new teacher rating 
-    cursor.execute("SELECT AVG(rating) FROM ratings WHERE teacher_id = %s", (teacher_id,))
-    new_average_rating = cursor.fetchone()["AVG(rating)"]
-    new_average_rating = round(new_average_rating, 2)
-
-    # Update the teacher's rating
-    cursor.execute("UPDATE teachers SET rating = %s WHERE id = %s", (new_average_rating, teacher_id))
-    conn.commit()
     conn.close()
-    return "Rating added successfully"
-    
-
-def get_all_rates_model():
-    conn = get_mysql_connection()
-    cursor = conn.cursor(dictionary=True)
-    query = """
-        SELECT 
-            ratings.id,
-            teachers.name AS teacher_name,
-            users.username AS user_name,
-            ratings.rating,
-            ratings.comment,
-            ratings.created_at as date
-        FROM ratings
-        JOIN teachers ON ratings.teacher_id = teachers.id
-        JOIN users ON ratings.user_id = users.id
-        """
-    cursor.execute(query)
-    result = cursor.fetchall()
-    cursor.close()
-    return result
+    return "Nauczyciel usunięty pomyślnie"
 
 
 def delete_rate_by_id_model(rate_id):
@@ -262,10 +342,17 @@ def delete_rate_by_id_model(rate_id):
     # Fetch the teacher ID and rating value
     cursor.execute("SELECT teacher_id FROM ratings WHERE id = %s", (rate_id,))
     rate = cursor.fetchone()
+
+    if not rate:
+        raise ValueError("Nie znaleziono oceny o podanym ID")
+    
     teacher_id = rate[0]
 
     # Delete the rate
     cursor.execute("DELETE FROM ratings WHERE id = %s", (rate_id,))
+
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się usunąć oceny")
 
     # Recalculate the average rating for the teacher
     cursor.execute("SELECT AVG(rating) FROM ratings WHERE teacher_id = %s", (teacher_id,))
@@ -277,5 +364,6 @@ def delete_rate_by_id_model(rate_id):
     # Update the teacher's rating
     cursor.execute("UPDATE teachers SET rating = %s WHERE id = %s", (new_average_rating, teacher_id))
     conn.commit()
+    cursor.close()
     conn.close()
-    return "Rate deleted successfully"
+    return "Ocena usunięta pomyślnie"
