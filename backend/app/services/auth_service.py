@@ -1,14 +1,16 @@
-def login_service():
-    pass
+from app.models.auth_model import *
 
-def logout_service():
-    pass
 
-def register_service():
-    pass
+def login_service(data):
+    token = login_model(data)
+    return token
 
-def register_teacher_service():
-    pass
 
-def check_login_service():
-    pass
+def register_service(data):
+    token = register_model(data)
+    return token
+
+
+def register_teacher_service(data):
+    token = register_teacher_model(data)
+    return token

@@ -1,18 +1,25 @@
-from flask import request, jsonify
-from functools import wraps
-from datetime import datetime
+from flask import request
+from datetime import datetime, timedelta
 import os
 import jwt
 
 
-def generate_token(user):
+def generate_access_token(user):
     payload = {
         'user_id': user['id'],
         'email': user['email'],
         'role': user['role'],
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(
-            minutes=int(os.getenv("JWT_EXPIRATION_MINUTES", 60))
-        )
+        'exp': datetime.utcnow() + timedelta(minutes=int(os.getenv("JWT_EXPIRATION_MINUTES_ACCESS", 60)))
+    }
+    return jwt.encode(payload, os.getenv("SECRET_KEY"), algorithm="HS256")
+
+
+def generate_refresh_token(user):
+    payload = {
+        'user_id': user['id'],
+        'email': user['email'],
+        'role': user['role'],
+        'exp': datetime.utcnow() + timedelta(days=int(os.getenv("JWT_EXPIRATION_DAYS_REFRESH", 7)))
     }
     return jwt.encode(payload, os.getenv("SECRET_KEY"), algorithm="HS256")
 
@@ -25,6 +32,7 @@ def decode_token(token):
         return None
     except jwt.InvalidTokenError:
         return None
+    
     
 def get_current_user_email():
     token = request.headers.get('Authorization')

@@ -1,14 +1,133 @@
-def login_model():
-    pass
+from app.utils.db import get_mysql_connection
+from app.utils.auth import generate_access_token
+from app.utils.file import save_file
+from datetime import datetime
+import bcrypt
 
-def logout_model():
-    pass
+def login_model(data):
+    conn = get_mysql_connection()
+    cursor = conn.cursor()
+    email = data.get('email')
+    password = data.get('password')
 
-def register_model():
-    pass
+    # Fetch hashed and role_id password from the database
+    cursor.execute("SELECT id, password, role_id FROM users WHERE email = %s", (email,))
+    result = cursor.fetchone()
 
-def register_teacher_model():
-    pass
+    if not result:
+        raise ValueError("Niepoprawny email lub hasło")
+    
+    user_id, hashed_password, role_id = result
 
-def check_login_model():
-    pass
+    if not bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
+        raise ValueError("Nieprawidłowy email lub hasło")
+
+    user = {
+        'id': user_id,
+        'email': email,
+        'role': role_id
+    }
+    
+    cursor.close()
+    conn.close()
+    return generate_access_token(user)
+
+
+def register_model(data):
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+    confirm_password = data.get('confirmPassword')
+    avatar = data.get('avatar')
+    avatar_filename = 'default_avatar.png'
+    registration_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    role_id = 3
+    
+    if password != confirm_password:
+        raise ValueError("Hasła nie są takie same")
+
+    conn = get_mysql_connection()
+    cursor = conn.cursor()
+    try:
+        # Check if the username already exists
+        cursor.execute("SELECT COUNT(*) FROM users WHERE email = %s", (email,))
+        if cursor.fetchone()[0] > 0:
+            raise ValueError("Użytkownik o podanym emailu już istnieje")
+        
+        # hash the password
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+        # Register the user
+        cursor.execute(
+            '''INSERT INTO users (username, email, password, registration_date, avatar, role_id)
+               VALUES (%s, %s, %s, %s, %s, %s)''',
+            (username, email, hashed_password, registration_date, avatar_filename, role_id)
+        )
+        conn.commit()
+
+        # Fetch the user ID
+        cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
+        user_id = cursor.fetchone()[0]
+
+        # Save the avatar if provided
+        if avatar:
+            avatar_filename = save_file(avatar, user_id)
+            cursor.execute("UPDATE users SET avatar = %s WHERE id = %s", (avatar_filename, user_id))
+            conn.commit()
+
+        # Generate token for the user
+        token = generate_access_token({
+            'id': user_id,
+            'email': email,
+            'role': role_id
+        })
+        cursor.close()
+        conn.close()
+        return token
+    
+    except Exception as e:
+        conn.rollback()
+        raise e
+    
+
+def register_teacher_model(data):
+    first_name = data['firstName']
+    last_name = data['lastName']
+    subject_id = data['subject']
+    price = data['price']
+    level_id = data['level']
+    email = 'admin' # It will be replaced
+    status = 0
+    rating = 0
+
+    conn = get_mysql_connection()
+    cursor = conn.cursor()
+
+    # Fetch the user ID
+    cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
+    user_id = cursor.fetchone()[0]
+    if not user_id:
+        raise ValueError("Użytkownik nie istnieje")
+
+    # Check if the user is already a teacher
+    cursor.execute("SELECT COUNT(*) FROM teachers WHERE user_id = %s", (user_id,))
+    if cursor.fetchone()[0] > 0:
+        raise ValueError("Użytkownik jest już nauczycielem")
+    
+    
+    # Register the teacher
+    cursor.execute("INSERT INTO teachers (name, user_id, subject, level_id, price, rating, status) VALUES (%s, %s, %s, %s, %s, %s, %s)", (first_name + ' ' + last_name, user_id, subject_id, level_id, price, rating, status))
+
+    # Change the user's role to teacher
+    cursor.execute("UPDATE users SET role_id = 2 WHERE email = %s", (email,))
+
+    # Generate new token for the teacher
+    token = generate_access_token({
+        'id': user_id,
+        'email': email,
+        'role': 2
+    })
+
+    cursor.close()
+    conn.close()
+    return token
