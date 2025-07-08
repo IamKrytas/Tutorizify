@@ -6,8 +6,8 @@ user_bp = Blueprint('user_bp', __name__)
 
 
 @user_bp.route('/', methods=['GET'])
-# @require_token
-# @require_role('admin')
+@require_token
+@require_role(1)
 def get_users_controller():
     try:
         users = get_users_service()
@@ -20,7 +20,7 @@ def get_users_controller():
 
 
 @user_bp.route('/user_info', methods=['GET'])
-# @require_token
+@require_token
 def get_user_info_controller():
     try: 
         user = get_user_info_service()
@@ -33,7 +33,7 @@ def get_user_info_controller():
 
 
 @user_bp.route('/user_profile', methods=['GET'])
-# @require_token
+@require_token
 def get_user_profile_controller():
     try:
         user = get_user_profile_service()
@@ -46,8 +46,8 @@ def get_user_profile_controller():
     
 
 @user_bp.route('/roles', methods=['GET'])
-# @require_token
-# @require_role('admin')
+@require_token
+@require_role(1)
 def get_roles_controller():
     try:
         roles = get_roles_service()
@@ -60,7 +60,7 @@ def get_roles_controller():
 
 
 @user_bp.route('/update_profile', methods=['PUT'])
-# @require_token
+@require_token
 def update_profile_controller():
     data = request.get_json()
     try:
@@ -74,7 +74,7 @@ def update_profile_controller():
     
 
 @user_bp.route('/update_email', methods=['PUT'])
-# @require_token
+@require_token
 def update_email_controller():
     data = request.get_json()
     try:
@@ -88,7 +88,7 @@ def update_email_controller():
 
 
 @user_bp.route('/update_password', methods=['PUT'])
-# @require_token
+@require_token
 def update_password_controller():
     data = request.get_json()
     try: 
@@ -102,7 +102,7 @@ def update_password_controller():
 
 
 @user_bp.route('/update_avatar', methods=['PUT'])
-# @require_token
+@require_token
 def update_avatar_controller():
     avatar = request.files.get('avatar')
     try:
@@ -116,8 +116,8 @@ def update_avatar_controller():
 
 
 @user_bp.route('/update_role', methods=['PUT'])
-# @require_token
-# @require_role('admin')
+@require_token
+@require_role(1)
 def update_role_controller():
     data = request.get_json()
     try:
@@ -130,11 +130,11 @@ def update_role_controller():
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
-@user_bp.route('/delete_account', methods=['DELETE'])
-# @require_token
-def delete_account_controller():
+@user_bp.route('/delete_user', methods=['DELETE'])
+@require_token
+def delete_user_controller():
     try:
-        result = delete_account_service()
+        result = delete_user_service()
         return jsonify({'message': result}), 200
     except ValueError as e:
         return jsonify({'message': str(e)}), 400

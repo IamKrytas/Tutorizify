@@ -29,11 +29,10 @@ def get_users_model():
     return users
 
 
-def get_user_info_model():
+def get_user_info_model(email):
     conn = get_mysql_connection()
     cursor = conn.cursor(dictionary=True)
-    email = 'admin' # It will be replaced
-    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    cursor.execute("SELECT email, username, registration_date, avatar FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
 
     if not user:
@@ -51,11 +50,10 @@ def get_user_info_model():
     return user
 
 
-def get_user_profile_model():
+def get_user_profile_model(email):
     conn = get_mysql_connection()
     cursor = conn.cursor(dictionary=True)
-    email = 'admin'  # It will be replaced
-    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    cursor.execute("SELECT email, username, registration_date, avatar FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
 
     if not user:
@@ -80,10 +78,9 @@ def get_roles_model():
     return roles
 
 
-def update_profile_model(data):
+def update_profile_model(data, email):
     conn = get_mysql_connection()
     cursor = conn.cursor()
-    email = 'admin'  # It will be replaced
     cursor.execute("UPDATE users SET username = %s WHERE email = %s", (data['username'], email))
     conn.commit()
 
@@ -95,10 +92,9 @@ def update_profile_model(data):
     return "Profil został zaktualizowany pomyślnie"
 
 
-def update_email_model(data):
+def update_email_model(data, email):
     conn = get_mysql_connection()
     cursor = conn.cursor()
-    email = 'admin' # It will be replaced
 
     # Check if the new email already exists
     cursor.execute("SELECT COUNT(*) FROM users WHERE email = %s", (data['email'],))
@@ -131,10 +127,9 @@ def update_email_model(data):
     return "Adres e-mail został zmieniony pomyślnie"
 
 
-def update_password_model(data):
+def update_password_model(data, email):
     conn = get_mysql_connection()
     cursor = conn.cursor()
-    email = 'admin'  # It will be replaced
     old_password = data['old_password']
     new_password = data['password']
 
@@ -166,10 +161,9 @@ def update_password_model(data):
     return "Hasło zostało zmienione pomyślnie"
 
 
-def update_avatar_model(avatar):
+def update_avatar_model(avatar, email):
     conn = get_mysql_connection()
     cursor = conn.cursor()
-    email = 'admin'  # It will be replaced
 
     # Fetch the user ID based on the email
     cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
@@ -213,10 +207,9 @@ def update_role_model(data):
     return "Rola użytkownika została zmieniona pomyślnie"
 
 
-def delete_account_model():
+def delete_user_model(email):
     conn = get_mysql_connection()
     cursor = conn.cursor()
-    email = 'admin'  # It will be replaced
 
     # Delete bookings associated with the user
     cursor.execute("DELETE FROM bookings WHERE user_id = (SELECT id FROM users WHERE email = %s)", (email,))

@@ -1,4 +1,6 @@
 from app.models.user_model import *
+from app.utils.auth import get_current_user_email
+
 
 def get_users_service():
     raw_users = get_users_model()
@@ -15,12 +17,14 @@ def get_users_service():
 
 
 def get_user_info_service():
-    user = get_user_info_model()
+    email = get_current_user_email()
+    user = get_user_info_model(email)
     return user
 
 
 def get_user_profile_service():
-    user = get_user_profile_model()
+    email = get_current_user_email()
+    user = get_user_profile_model(email)
     return user
 
 def get_roles_service():
@@ -29,22 +33,26 @@ def get_roles_service():
 
 
 def update_profile_service(data):
-    result = update_profile_model(data)
+    email = get_current_user_email()
+    result = update_profile_model(data, email)
     return result
 
 
 def update_email_service(data):
-    result = update_email_model(data)
+    email = get_current_user_email()
+    result = update_email_model(data, email)
     return result
 
 
 def update_password_service(data):
-    result = update_password_model(data)
+    email = get_current_user_email()
+    result = update_password_model(data, email)
     return result
 
 
 def update_avatar_service(avatar):
-    result = update_avatar_model(avatar)
+    email = get_current_user_email()
+    result = update_avatar_model(avatar, email)
     return result
 
 
@@ -53,6 +61,7 @@ def update_role_service(data):
     return result
 
 
-def delete_account_service():
-    result = delete_account_model()
+def delete_user_service():
+    email = get_current_user_email()
+    result = delete_user_model(email)
     return result
