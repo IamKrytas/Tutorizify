@@ -1,14 +1,11 @@
 from app.models.booking_model import *
 from datetime import datetime
-
-
-def get_total_info_service():
-    info = get_total_info_model()
-    return info
+from app.utils.auth import get_current_user_email
 
 
 def get_my_bookings_service():
-    bookings = get_my_bookings_model()
+    email = get_current_user_email()
+    bookings = get_my_bookings_model(email)
     bookings_data  = []
     for booking in bookings:
         # Convert date to string format if it exists
@@ -70,7 +67,8 @@ def get_all_bookings_service():
 
 
 def get_current_bookings_service():
-    bookings = get_current_bookings_model()
+    email = get_current_user_email()
+    bookings = get_current_bookings_model(email)
     bookings_data = []
     for booking in bookings:
         # Convert date to string format if it exists
@@ -100,7 +98,8 @@ def get_current_bookings_service():
 
 
 def get_my_teacher_bookings_service():
-    bookings = get_my_teacher_bookings_model()
+    email = get_current_user_email()
+    bookings = get_my_teacher_bookings_model(email)
     bookings_data = []
     for booking in bookings:
         # Convert date to string format if it exists
@@ -129,16 +128,19 @@ def get_my_teacher_bookings_service():
     return bookings_data
 
 
-def booking_service(data):
-    result = booking_model(data)
+def add_booking_service(data):
+    email = get_current_user_email()
+    result = add_booking_model(data, email)
     return result
 
 
-def cancel_booking_service(booking_id):
-    result = cancel_booking_model(booking_id)
+def delete_booking_by_id_service(booking_id):
+    email = get_current_user_email()
+    result = delete_booking_by_id_model(booking_id, email)
     return result
 
 
-def cancel_my_teacher_booking_by_id_service(booking_id):
-    result = cancel_my_teacher_booking_by_id_model(booking_id)
+def delete_my_teacher_booking_by_id_service(booking_id):
+    email = get_current_user_email()
+    result = delete_my_teacher_booking_by_id_model(booking_id, email)
     return result

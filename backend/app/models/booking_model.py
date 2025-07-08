@@ -2,38 +2,9 @@ from app.utils.db import get_mysql_connection
 from datetime import datetime, timedelta
 
 
-def get_total_info_model():
+def get_my_bookings_model(email):
     conn = get_mysql_connection()
     cursor = conn.cursor(dictionary=True)
-    info = []
-
-    # Fetch total number of users
-    cursor.execute("SELECT COUNT(*) AS total_users FROM users")
-    total_users = cursor.fetchone()
-
-    # Fetch total number of teachers
-    cursor.execute("SELECT COUNT(*) AS total_teachers FROM teachers WHERE status = 1;")
-    total_teachers = cursor.fetchone()
-
-    # Fetch total number of subjects
-    cursor.execute("SELECT COUNT(*) AS total_subjects FROM subjects;")
-    total_subjects = cursor.fetchone()
-
-    info = {
-        "totalUsers": total_users['total_users'],
-        "totalTeachers": total_teachers['total_teachers'],
-        "totalCourses": total_subjects['total_subjects']
-    }
-
-    cursor.close()
-    conn.close()
-    return info
-
-
-def get_my_bookings_model():
-    conn = get_mysql_connection()
-    cursor = conn.cursor(dictionary=True)
-    email = 'admin'  # It will be replaced
     
     cursor.execute("""
         SELECT 
@@ -102,8 +73,7 @@ def get_all_bookings_model():
     return bookings
 
 
-def get_current_bookings_model():
-    email = 'admin'  # It will be replaced
+def get_current_bookings_model(email):
     conn = get_mysql_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -137,8 +107,7 @@ def get_current_bookings_model():
     return bookings
 
 
-def get_my_teacher_bookings_model():
-    email = 'admin'  # It will be replaced
+def get_my_teacher_bookings_model(email):
     conn = get_mysql_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -181,12 +150,11 @@ def get_my_teacher_bookings_model():
     return bookings
 
 
-def booking_model(data):
+def add_booking_model(data, email):
     date = data['date']
     time = data['time']
     teacher_id = data["teacherId"]
     duration = int(data['duration'])
-    email = 'admin' # It will be replaced
 
     conn = get_mysql_connection()
     cursor = conn.cursor(dictionary=True)
@@ -249,10 +217,9 @@ def booking_model(data):
     return "Rezerwacja została dodana pomyślnie!"
 
 
-def cancel_booking_model(booking_id):
+def delete_booking_by_id_model(booking_id, email):
     conn = get_mysql_connection()
     cursor = conn.cursor(dictionary=True)
-    email = 'admin'  # It will be replaced
 
     # Fetch user_id based on email
     cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
@@ -270,8 +237,7 @@ def cancel_booking_model(booking_id):
     return "Rezerwacja została anulowana pomyślnie!"
 
 
-def cancel_my_teacher_booking_by_id_model(booking_id):
-    email = 'admin'  # It will be replaced
+def delete_my_teacher_booking_by_id_model(booking_id, email):
     conn = get_mysql_connection()
     cursor = conn.cursor(dictionary=True)
 
