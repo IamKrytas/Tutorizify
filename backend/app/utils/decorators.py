@@ -1,6 +1,5 @@
 from functools import wraps
 from flask import request, jsonify, g
-from app.utils.auth import decode_token
 import jwt
 import os
 
@@ -13,7 +12,6 @@ def require_token(f):
             return jsonify({"message": "Brak tokenu autoryzacyjnego"}), 401
 
         token = auth_header.split(" ")[1]
-        print(f"Token: {token}")  # Debugging line
 
         try:
             decoded = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=["HS256"])

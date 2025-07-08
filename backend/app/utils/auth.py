@@ -36,6 +36,10 @@ def decode_token(token):
     
 def get_current_user_email():
     token = request.headers.get('Authorization')
+    if token and token.lower().startswith('bearer '):
+        token = token.split(' ')[1]
+    else:
+        return None
     if not token:
         return None
     try:

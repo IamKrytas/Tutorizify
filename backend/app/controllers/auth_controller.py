@@ -9,8 +9,10 @@ auth_bp = Blueprint('auth_bp', __name__)
 def login_controller():
     data = request.get_json()
     try: 
-        token = login_service(data)
-        return jsonify({'message': 'Zalogowano pomyślnie', 'token': token}), 200
+        tokens = login_service(data)
+        return jsonify({'message': 'Zalogowano pomyślnie',
+                        'access_token': tokens['access_token'],
+                        'refresh_token': tokens['refresh_token']}), 200
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
@@ -22,8 +24,10 @@ def login_controller():
 def register_controller():
     data = request.get_json()
     try:
-        token = register_service(data)
-        return jsonify({'message': 'Zarejestrowano pomyślnie', 'token': token}), 201
+        tokens = register_service(data)
+        return jsonify({'message': 'Zarejestrowano pomyślnie',
+                        'access_token': tokens['access_token'],
+                        'refresh_token': tokens['refresh_token']}), 201
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
@@ -31,17 +35,33 @@ def register_controller():
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
+@auth_bp.route('/refresh_token', methods=['POST'])
+@require_token
+def refresh_token_controller():
+    data = request.get_json()
+    try:
+        new_access_token = refresh_token_service(data)
+        return jsonify({'message': 'Token odświeżony pomyślnie',
+                        'access_token': new_access_token}), 200
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+    except Exception as e:
+        print(f"[ERROR] Odświeżanie tokena: {e}")
+        return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
+
+
 @auth_bp.route('/register_teacher', methods=['POST'])
-# @require_token
-# @require_role("user")
+@require_token
+@require_role(3)
 def register_teacher_controller():
     data = request.get_json()
     try:
-        result = register_teacher_service(data)
-        return jsonify({'token': result, 'message': 'Nauczyciel został zarejestrowany pomyślnie'}), 201
+        new_tokens = register_teacher_service(data)
+        return jsonify({'message': 'Nauczyciel został zarejestrowany pomyślnie', 
+                        'access_token': new_tokens['access_token'], 
+                        'refresh_token': new_tokens['refresh_token']}), 201
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
         print(f"[ERROR] Rejestracja nauczyciela: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
-       

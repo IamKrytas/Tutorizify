@@ -1,12 +1,12 @@
 from app.utils.db import get_mysql_connection
-from app.utils.auth import generate_access_token
 from app.utils.file import save_file
 from datetime import datetime
 import bcrypt
 
+
 def login_model(data):
     conn = get_mysql_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     email = data.get('email')
     password = data.get('password')
 
@@ -17,20 +17,16 @@ def login_model(data):
     if not result:
         raise ValueError("Niepoprawny email lub hasło")
     
-    user_id, hashed_password, role_id = result
+    user_id = result['id']
+    hashed_password = result['password']
+    role_id = result = result['role_id']
 
     if not bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
         raise ValueError("Nieprawidłowy email lub hasło")
-
-    user = {
-        'id': user_id,
-        'email': email,
-        'role': role_id
-    }
     
     cursor.close()
     conn.close()
-    return generate_access_token(user)
+    return {"id": user_id, "email": email, "role": role_id}
 
 
 def register_model(data):
@@ -75,59 +71,50 @@ def register_model(data):
             cursor.execute("UPDATE users SET avatar = %s WHERE id = %s", (avatar_filename, user_id))
             conn.commit()
 
-        # Generate token for the user
-        token = generate_access_token({
-            'id': user_id,
-            'email': email,
-            'role': role_id
-        })
         cursor.close()
         conn.close()
-        return token
+        return {'id': user_id, 'email': email, 'role': role_id}
     
-    except Exception as e:
+    except ValueError as e:
         conn.rollback()
+        cursor.close()
+        conn.close()
         raise e
     
 
-def register_teacher_model(data):
+def register_teacher_model(data, email):
     first_name = data['firstName']
     last_name = data['lastName']
     subject_id = data['subject']
     price = data['price']
     level_id = data['level']
-    email = 'admin' # It will be replaced
     status = 0
     rating = 0
 
     conn = get_mysql_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
 
     # Fetch the user ID
     cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
-    user_id = cursor.fetchone()[0]
+    user_id = cursor.fetchone()['id']
     if not user_id:
         raise ValueError("Użytkownik nie istnieje")
 
     # Check if the user is already a teacher
     cursor.execute("SELECT COUNT(*) FROM teachers WHERE user_id = %s", (user_id,))
-    if cursor.fetchone()[0] > 0:
+    if cursor.fetchone()['COUNT(*)'] > 0:
         raise ValueError("Użytkownik jest już nauczycielem")
-    
     
     # Register the teacher
     cursor.execute("INSERT INTO teachers (name, user_id, subject, level_id, price, rating, status) VALUES (%s, %s, %s, %s, %s, %s, %s)", (first_name + ' ' + last_name, user_id, subject_id, level_id, price, rating, status))
 
     # Change the user's role to teacher
     cursor.execute("UPDATE users SET role_id = 2 WHERE email = %s", (email,))
+    conn.commit()
 
-    # Generate new token for the teacher
-    token = generate_access_token({
-        'id': user_id,
-        'email': email,
-        'role': 2
-    })
+    if cursor.rowcount == 0:
+        raise ValueError("Nie udało się zarejestrować nauczyciela")
 
     cursor.close()
     conn.close()
-    return token
+    return {'id': user_id, 'email': email, 'role': 2}
