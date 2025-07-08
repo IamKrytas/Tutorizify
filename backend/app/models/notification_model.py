@@ -1,10 +1,9 @@
 from app.utils.db import get_mysql_connection
 
 
-def get_notifications_model():
+def get_notifications_model(email):
     conn = get_mysql_connection()
     cursor = conn.cursor(dictionary=True)
-    email = 'admin' # It will be replaced
 
     # Fetch user ID based on email
     cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
