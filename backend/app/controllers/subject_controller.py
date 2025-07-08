@@ -6,7 +6,7 @@ subject_bp = Blueprint('subject_bp', __name__)
 
 
 @subject_bp.route('/get_all_subjects', methods=['GET'])
-# @require_token
+@require_token
 def get_all_subjects_controller():
     try:
         subjects = get_all_subjects_service()
@@ -19,7 +19,7 @@ def get_all_subjects_controller():
 
 
 @subject_bp.route('/get_all_levels', methods=['GET'])
-# @require_token
+@require_token
 def get_all_levels_controller():
     try:
         levels = get_all_levels_service()
@@ -32,8 +32,8 @@ def get_all_levels_controller():
 
 
 @subject_bp.route('/add_subject', methods=['POST'])
-# @require_token
-# @require_role('admin')
+@require_token
+@require_role(1)
 def add_subject_controller():
     data = request.get_json()
     try:
@@ -47,8 +47,8 @@ def add_subject_controller():
 
 
 @subject_bp.route('/update_subject', methods=['PUT'])
-# @require_token
-# @require_role('admin')
+@require_token
+@require_role(1)
 def update_subject_controller():
     data = request.get_json()
     try:
