@@ -6,7 +6,7 @@ teacher_bp = Blueprint('teacher_bp', __name__)
 
 
 @teacher_bp.route('/get_teachers', methods=['GET'])
-# @require_token
+@require_token
 def get_teachers_controller():
     try:
         teachers = get_teachers_service()
@@ -19,8 +19,8 @@ def get_teachers_controller():
 
 
 @teacher_bp.route('/get_all_teachers', methods=['GET'])
-# @require_token
-# @require_role('admin')
+@require_token
+@require_role(1)
 def get_all_teachers_controller():
     try:
         teachers = get_all_teachers_service()
@@ -33,7 +33,7 @@ def get_all_teachers_controller():
 
 
 @teacher_bp.route('/get_about/<int:teacher_id>', methods=['GET'])
-# @require_token
+@require_token
 def get_about_by_id_controller(teacher_id):
     try:
         about = get_about_by_id_service(teacher_id)
@@ -46,8 +46,8 @@ def get_about_by_id_controller(teacher_id):
 
     
 @teacher_bp.route('/get_my_teacher_profile', methods=['GET'])
-# @require_token
-# @require_role('teacher', 'admin')
+@require_token
+@require_role(1, 2)
 def get_my_teacher_profile_controller():
     try:
         teacher_profile = get_my_teacher_profile_service()
@@ -57,39 +57,11 @@ def get_my_teacher_profile_controller():
     except Exception as e:
         print(f"[ERROR] Login: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
-    
-
-@teacher_bp.route('/get_all_rates', methods=['GET'])
-# @require_token
-# @require_role('admin')
-def get_all_rates_controller():
-    try:
-        rates = get_all_rates_service()
-        return jsonify({'rates': rates}), 200
-    except ValueError as e:
-        return jsonify({'message': str(e)}), 400
-    except Exception as e:
-        print(f"[ERROR] Login: {e}")
-        return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
-
-
-@teacher_bp.route('/rate_teacher/<int:teacher_id>', methods=['POST'])
-# @require_token
-def rate_teacher_by_id_controller(teacher_id):
-    data = request.get_json()
-    try:
-        result = rate_teacher_by_id_service(teacher_id, data)
-        return jsonify({'message': result}), 201
-    except ValueError as e:
-        return jsonify({'message': str(e)}), 400
-    except Exception as e:
-        print(f"[ERROR] Login: {e}")
-        return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
 @teacher_bp.route('/update_my_teacher_profile', methods=['PUT'])
-# @require_token
-# @require_role('teacher', 'admin')
+@require_token
+@require_role(1, 2)
 def update_my_teacher_profile_controller():
     data = request.get_json()
     try:
@@ -103,8 +75,8 @@ def update_my_teacher_profile_controller():
 
 
 @teacher_bp.route('/update_status_teacher/<int:teacher_id>', methods=['PUT'])
-# @require_token
-# @require_role('admin')
+@require_token
+@require_role(1)
 def update_status_teacher_by_id_controller(teacher_id):
     try:
         result = update_status_teacher_by_id_service(teacher_id)
@@ -117,24 +89,11 @@ def update_status_teacher_by_id_controller(teacher_id):
 
 
 @teacher_bp.route('/delete_teacher/<int:teacher_id>', methods=['DELETE'])
-# @require_token
-# @require_role('admin')
+@require_token
+@require_role(1)
 def delete_teacher_by_id_controller(teacher_id):
     try:
         result = delete_teacher_by_id_service(teacher_id)
-        return jsonify({'message': result}), 200
-    except ValueError as e:
-        return jsonify({'message': str(e)}), 400
-    except Exception as e:
-        print(f"[ERROR] Login: {e}")
-        return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
-
-@teacher_bp.route('/delete_rate/<int:rate_id>', methods=['DELETE'])
-# @require_token
-# @require_role('admin')
-def delete_rate_by_id_controller(rate_id):
-    try:
-        result = delete_rate_by_id_service(rate_id)
         return jsonify({'message': result}), 200
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
