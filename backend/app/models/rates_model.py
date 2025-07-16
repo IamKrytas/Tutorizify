@@ -44,9 +44,6 @@ def get_rates_by_id_model(teacher_id):
             WHERE ratings.teacher_id = %s
         """, (teacher_id,))
     rates = cursor.fetchall()
-
-    if not rates:
-        raise ValueError("Nie znaleziono recenzji dla tego nauczyciela")
     
     cursor.close()
     conn.close()
@@ -65,6 +62,15 @@ def add_rate_by_id_model(teacher_id, data, email):
         raise ValueError("Nie znaleziono użytkownika o podanym emailu")
     
     user_id = user['id']
+
+    # Check if the teacher is assigned to the user in booking and date and end time was in the past
+    cursor.execute("""
+        SELECT COUNT(*) FROM bookings 
+        WHERE teacher_id = %s AND user_id = %s AND date < NOW() AND end_time < NOW()
+    """, (teacher_id, user_id))
+    booking_exists = cursor.fetchone()["COUNT(*)"]
+    if not booking_exists:
+        raise ValueError("Nie możesz ocenić nauczyciela, jeśli nie byłeś na lekcji")
 
     # Check if the user has already rated the teacher
     cursor.execute("SELECT COUNT(*) FROM ratings WHERE teacher_id = %s AND user_id = %s", (teacher_id, user_id))

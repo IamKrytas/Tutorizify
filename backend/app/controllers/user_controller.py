@@ -15,7 +15,7 @@ def get_users_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Get Users: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
@@ -28,7 +28,7 @@ def get_user_info_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Get User Info: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
@@ -41,7 +41,7 @@ def get_user_profile_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Get User Profile: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
     
 
@@ -55,7 +55,7 @@ def get_roles_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Get Roles: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
@@ -69,21 +69,7 @@ def update_profile_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
-        return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
-    
-
-@user_bp.route('/update_email', methods=['PUT'])
-@require_token
-def update_email_controller():
-    data = request.get_json()
-    try:
-        result = update_email_service(data)
-        return jsonify({'message': result}), 200
-    except ValueError as e:
-        return jsonify({'message': str(e)}), 400
-    except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Update Profile: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
@@ -97,7 +83,7 @@ def update_password_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Update Password: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
@@ -111,22 +97,22 @@ def update_avatar_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Update Avatar: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
-@user_bp.route('/update_role', methods=['PUT'])
+@user_bp.route('/update_role/<user_id>', methods=['PUT'])
 @require_token
 @require_role(1)
-def update_role_controller():
+def update_role_by_id_controller(user_id):
     data = request.get_json()
     try:
-        result = update_role_service(data)
+        result = update_role_by_id_service(data, user_id)
         return jsonify({'message': result}), 200
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Update Role: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
@@ -139,5 +125,5 @@ def delete_user_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Delete User: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500

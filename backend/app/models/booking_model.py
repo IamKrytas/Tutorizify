@@ -33,9 +33,6 @@ def get_my_bookings_model(email):
         """, (email, email))
 
     bookings = cursor.fetchall()
-
-    if not bookings:
-        raise ValueError("Nie masz żadnych rezerwacji")
     
     cursor.close()
     conn.close()
@@ -98,9 +95,6 @@ def get_current_bookings_model(email):
             AND CONCAT(bookings.date, ' ', bookings.start_time) >= NOW()
         """, (email,))
     bookings = cursor.fetchall()
-
-    if not bookings:
-        raise ValueError("Nie masz żadnych aktualnych rezerwacji")
     
     cursor.close()
     conn.close()
@@ -141,9 +135,6 @@ def get_my_teacher_bookings_model(email):
             WHERE bookings.teacher_id = %s
         """, (teacher_id,))
     bookings = cursor.fetchall()
-
-    if not bookings:
-        raise ValueError("Nie masz żadnych rezerwacji jako nauczyciel")
     
     cursor.close()
     conn.close()
@@ -169,14 +160,14 @@ def add_booking_model(data, email):
     if not teacher_info:
         raise ValueError("Nauczyciel nie istnieje lub jest nieaktywny")
     
-    subject_id = teacher_info[0]
-    level_id = teacher_info[1]
-    price = teacher_info[2]
+    subject_id = teacher_info["subject"]
+    level_id = teacher_info["level_id"]
+    price = teacher_info["price"]
 
     # Fetch user_id based on email
     cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
-    user_id = user[0]
+    user_id = user["id"]
 
     # Check if the booking already exists
     query = """

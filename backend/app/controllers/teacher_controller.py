@@ -14,7 +14,7 @@ def get_teachers_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Get Teachers: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
@@ -28,7 +28,7 @@ def get_all_teachers_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Get All Teachers: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
@@ -36,12 +36,12 @@ def get_all_teachers_controller():
 @require_token
 def get_about_by_id_controller(teacher_id):
     try:
-        about = get_about_by_id_service(teacher_id)
-        return jsonify({'about': about}), 200
+        teacher = get_about_by_id_service(teacher_id)
+        return jsonify({'teacher': teacher}), 200
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Get About by ID: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
     
@@ -55,7 +55,20 @@ def get_my_teacher_profile_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Get My Teacher Profile: {e}")
+        return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
+    
+
+@teacher_bp.route('/get_most_popular_teachers', methods=['GET'])
+@require_token
+def get_most_popular_teachers_controller():
+    try:
+        teachers = get_most_popular_teachers_service()
+        return jsonify({'teachers': teachers}), 200
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+    except Exception as e:
+        print(f"[ERROR] Get Most Popular Teachers: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
@@ -65,12 +78,12 @@ def get_my_teacher_profile_controller():
 def update_my_teacher_profile_controller():
     data = request.get_json()
     try:
-        updated_profile = update_my_teacher_profile_service(data)
-        return jsonify({'message ': updated_profile}), 200
+        result = update_my_teacher_profile_service(data)
+        return jsonify({'message': result}), 200
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Update My Teacher Profile: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
@@ -84,19 +97,5 @@ def update_status_teacher_by_id_controller(teacher_id):
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
-        return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
-
-
-@teacher_bp.route('/delete_teacher/<int:teacher_id>', methods=['DELETE'])
-@require_token
-@require_role(1)
-def delete_teacher_by_id_controller(teacher_id):
-    try:
-        result = delete_teacher_by_id_service(teacher_id)
-        return jsonify({'message': result}), 200
-    except ValueError as e:
-        return jsonify({'message': str(e)}), 400
-    except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Update Status Teacher by ID: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500

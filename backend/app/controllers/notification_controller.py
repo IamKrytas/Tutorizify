@@ -14,5 +14,5 @@ def get_notifications_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Get Notifications: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500

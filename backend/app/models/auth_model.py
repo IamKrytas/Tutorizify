@@ -29,12 +29,11 @@ def login_model(data):
     return {"id": user_id, "email": email, "role": role_id}
 
 
-def register_model(data):
+def register_model(data, avatar):
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
     confirm_password = data.get('confirmPassword')
-    avatar = data.get('avatar')
     avatar_filename = 'default_avatar.png'
     registration_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     role_id = 3
@@ -83,8 +82,8 @@ def register_model(data):
     
 
 def register_teacher_model(data, email):
-    first_name = data['firstName']
-    last_name = data['lastName']
+    first_name = data['name']
+    last_name = data['surname']
     subject_id = data['subject']
     price = data['price']
     level_id = data['level']

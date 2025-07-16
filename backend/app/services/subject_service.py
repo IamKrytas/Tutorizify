@@ -30,6 +30,6 @@ def add_subject_service(data):
     return result
 
 
-def update_subject_service(data):
-    result = update_subject_model(data)
+def update_subject_by_id_service(data, subject_id):
+    result = update_subject_by_id_model(data, subject_id)
     return result

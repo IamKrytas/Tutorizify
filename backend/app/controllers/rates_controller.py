@@ -15,7 +15,7 @@ def get_all_rates_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Get All Rates: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
 
 
@@ -28,7 +28,7 @@ def get_rates_by_id_controller(teacher_id):
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Get Rates by ID: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
     
 
@@ -42,7 +42,7 @@ def add_rate_by_id_controller(teacher_id):
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Add Rate: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
     
 
@@ -56,5 +56,5 @@ def delete_rate_by_id_controller(rate_id):
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Delete Rate: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500

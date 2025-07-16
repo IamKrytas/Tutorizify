@@ -1,6 +1,6 @@
 from app.models.teacher_model import *
 from app.utils.auth import get_current_user_email
-
+import os
 
 def get_teachers_service():
     raw_teachers = get_teachers_model()
@@ -42,20 +42,21 @@ def get_all_teachers_service():
 
 
 def get_about_by_id_service(teacher_id):
-    raw_about = get_about_by_id_model(teacher_id)
-    profile_picture_url = f"/api/uploads/{raw_about['avatar']}" if raw_about['avatar'] else None
+    teacher = get_about_by_id_model(teacher_id)
+    localhost = os.getenv("LOCALHOST")
+    image_url = f"{localhost}/api/uploads/{teacher['avatar']}" if teacher['avatar'] else None
     about_data = {
-        "id": raw_about["id"],
-        "name": raw_about["name"],
-        "bio": raw_about["bio"],
-        "email": raw_about["email"],
-        "description": raw_about["description"],
-        "image": profile_picture_url,
-        "subject": raw_about["subject_name"],
-        "level": raw_about["level"],
-        "price": raw_about["price"],
-        "rating": raw_about["rating"],
-        "ratingCount": raw_about["rating_count"]
+        "id": teacher["id"],
+        "name": teacher["name"],
+        "bio": teacher["bio"],
+        "email": teacher["email"],
+        "description": teacher["description"],
+        "image": image_url,
+        "subject": teacher["subject_name"],
+        "level": teacher["level"],
+        "price": teacher["price"],
+        "rating": teacher["rating"],
+        "ratingCount": teacher["rating_count"]
     }
     return about_data
 
@@ -78,18 +79,30 @@ def get_my_teacher_profile_service():
     return profile_data
 
 
+def get_most_popular_teachers_service():
+    raw_teachers = get_most_popular_teachers_model()
+    teachers_data = []
+    for teacher in raw_teachers:
+        localhost = os.getenv("LOCALHOST")
+        image_url = f"{localhost}/api/uploads/{teacher['avatar']}" if teacher['avatar'] else None
+        teachers_data.append({
+            "id": teacher["id"],
+            "name": teacher["name"],
+            "image": image_url,
+            "subject": teacher["subject_name"],
+            "level": teacher["level"],
+            "price": teacher["price"],
+            "rating": teacher["rating"]
+        })
+    return teachers_data
+
+
 def update_my_teacher_profile_service(data):
-    received_data = data
     email = get_current_user_email()
-    result = update_my_teacher_profile_model(received_data)
+    result = update_my_teacher_profile_model(data, email)
     return result
     
 
 def update_status_teacher_by_id_service(teacher_id):
     result = update_status_teacher_by_id_model(teacher_id)
-    return result
-
-
-def delete_teacher_by_id_service(teacher_id):
-    result = delete_teacher_by_id_model(teacher_id)
     return result

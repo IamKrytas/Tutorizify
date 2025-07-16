@@ -34,12 +34,12 @@ def get_all_levels_model():
 
 
 def add_subject_model(data):
-    subject_name = data['subject']
+    subject_name = data['name']
     conn = get_mysql_connection()
     cursor = conn.cursor()
 
     # Insert the new subject into the database
-    cursor.execute("INSERT INTO subjects (name, status) VALUES (%s, 'active')", (subject_name,))
+    cursor.execute("INSERT INTO subjects (name) VALUES (%s)", (subject_name,))
     conn.commit()
 
     if cursor.rowcount == 0:
@@ -50,9 +50,8 @@ def add_subject_model(data):
     return "Przedmiot dodany pomyślnie"
 
 
-def update_subject_model(data):
-    subject_id = data['id']
-    new_name = data['subject']
+def update_subject_by_id_model(data, subject_id):
+    new_name = data['name']
     conn = get_mysql_connection()
     cursor = conn.cursor()
 

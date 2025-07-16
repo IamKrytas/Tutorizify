@@ -3,7 +3,7 @@ import os
 # Konfiguracja aplikacji Flask
 SESSION_TYPE = "filesystem"
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-key")
-UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", "uploads")
+UPLOAD_FOLDER = os.path.abspath(os.environ.get("UPLOAD_FOLDER", "uploads"))
 
 # Konfiguracja MySQL
 MYSQL_HOST = os.environ.get("MYSQL_HOST", "localhost")

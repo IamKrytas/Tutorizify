@@ -14,8 +14,8 @@ def login_service(data):
     }
 
 
-def register_service(data):
-    user_data = register_model(data)
+def register_service(data, avatar):
+    user_data = register_model(data, avatar)
     access_token = generate_access_token(user_data)
     refresh_token = generate_refresh_token(user_data)
     return {
@@ -50,9 +50,9 @@ def refresh_token_service(data):
 
 def register_teacher_service(data):
     email = get_current_user_email()
-    token = register_teacher_model(data, email)
-    access_token = generate_access_token(token)
-    refresh_token = generate_refresh_token(token)
+    user_data = register_teacher_model(data, email)
+    access_token = generate_access_token(user_data)
+    refresh_token = generate_refresh_token(user_data)
     return {
         'access_token': access_token,
         'refresh_token': refresh_token
