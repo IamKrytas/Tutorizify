@@ -2,6 +2,7 @@ from app.models.user_model import *
 from app.utils.auth import get_current_user_email
 import os
 
+
 def get_users_service():
     raw_users = get_users_model()
     users = []
@@ -34,6 +35,7 @@ def get_user_profile_service():
     user = get_user_profile_model(email)
     return user
 
+  
 def get_roles_service():
     roles = get_roles_model()
     return roles
