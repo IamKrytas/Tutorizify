@@ -9,7 +9,7 @@ on:
       - 'backend/**'
 
 jobs:
-  test:
+  backend-test-build:
     runs-on: ubuntu-latest
 
     defaults:
