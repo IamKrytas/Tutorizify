@@ -22,9 +22,10 @@ def login_controller():
 
 @auth_bp.route('/register', methods=['POST'])
 def register_controller():
-    data = request.get_json()
+    data = request.form.to_dict()
+    avatar = request.files.get('avatar')
     try:
-        tokens = register_service(data)
+        tokens = register_service(data, avatar)
         return jsonify({'message': 'Zarejestrowano pomyślnie',
                         'access_token': tokens['access_token'],
                         'refresh_token': tokens['refresh_token']}), 201
@@ -36,7 +37,6 @@ def register_controller():
 
 
 @auth_bp.route('/refresh_token', methods=['POST'])
-@require_token
 def refresh_token_controller():
     data = request.get_json()
     try:
@@ -52,12 +52,12 @@ def refresh_token_controller():
 
 @auth_bp.route('/register_teacher', methods=['POST'])
 @require_token
-@require_role(3)
+@require_role(1, 3)
 def register_teacher_controller():
     data = request.get_json()
     try:
         new_tokens = register_teacher_service(data)
-        return jsonify({'message': 'Nauczyciel został zarejestrowany pomyślnie', 
+        return jsonify({'message': 'Pomyślnie zarejestrowano jako nauczyciel',
                         'access_token': new_tokens['access_token'], 
                         'refresh_token': new_tokens['refresh_token']}), 201
     except ValueError as e:

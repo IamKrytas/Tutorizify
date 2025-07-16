@@ -3,3 +3,4 @@ static.py
 __pycache__
 *.pyc
 *.pyo
+/uploads

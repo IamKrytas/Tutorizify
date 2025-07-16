@@ -13,7 +13,7 @@ def get_users_model():
                 users.username,
                 users.email,
                 users.registration_date,
-                roles.role_name AS role
+                roles.name AS role
             FROM users
             JOIN roles ON users.role_id = roles.id
             ORDER BY users.id
@@ -37,13 +37,6 @@ def get_user_info_model(email):
 
     if not user:
         raise ValueError("Użytkownik nie został znaleziony")
-    
-    avatar = user['avatar']
-
-    if avatar:
-        user['avatar'] = f"{os.getenv('LOCALHOST')}/static/avatars/{avatar}"
-    else:
-        user['avatar'] = None
 
     cursor.close()
     conn.close()
@@ -81,7 +74,20 @@ def get_roles_model():
 def update_profile_model(data, email):
     conn = get_mysql_connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE users SET username = %s WHERE email = %s", (data['username'], email))
+    new_username = data['username']
+
+    # Check if the old username is the same as the new one
+    cursor.execute("SELECT username FROM users WHERE email = %s", (email,))
+    result = cursor.fetchone()
+    if not result:
+        conn.close()
+        raise ValueError("Użytkownik nie został znaleziony")
+    
+    old_username = result[0]
+    if old_username == new_username:
+        raise ValueError("Nowa nazwa użytkownika jest taka sama jak stara")
+        
+    cursor.execute("UPDATE users SET username = %s WHERE email = %s", (new_username, email))
     conn.commit()
 
     if cursor.rowcount == 0:
@@ -92,46 +98,11 @@ def update_profile_model(data, email):
     return "Profil został zaktualizowany pomyślnie"
 
 
-def update_email_model(data, email):
-    conn = get_mysql_connection()
-    cursor = conn.cursor()
-
-    # Check if the new email already exists
-    cursor.execute("SELECT COUNT(*) FROM users WHERE email = %s", (data['email'],))
-
-    if cursor.fetchone()[0] > 0:
-        raise ValueError("Użytkownik z tym adresem e-mail już istnieje")
-
-    # Fetch user's current hashed password
-    cursor.execute("SELECT password FROM users WHERE email = %s", (email,))
-    result = cursor.fetchone()
-
-    if not result:
-        raise ValueError("Użytkownik nie został znaleziony")
-
-    hashed_password = result[0]
-
-    # Verify password
-    if not bcrypt.checkpw(data['password'].encode('utf-8'), hashed_password.encode('utf-8')):
-        raise ValueError("Nieprawidłowe hasło")
-
-    # Zmień email
-    cursor.execute("UPDATE users SET email = %s WHERE email = %s", (data['email'], email))
-    conn.commit()
-
-    if cursor.rowcount == 0:
-        raise ValueError("Nie udało się zmienić adresu e-mail")
-    
-    cursor.close()
-    conn.close()
-    return "Adres e-mail został zmieniony pomyślnie"
-
-
 def update_password_model(data, email):
     conn = get_mysql_connection()
     cursor = conn.cursor()
     old_password = data['old_password']
-    new_password = data['password']
+    new_password = data['new_password']
 
     # Fetch user's current hashed password
     cursor.execute("SELECT password FROM users WHERE email = %s", (email,))
@@ -163,40 +134,34 @@ def update_password_model(data, email):
 
 def update_avatar_model(avatar, email):
     conn = get_mysql_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
 
     # Fetch the user ID based on the email
     cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
-    user_id = cursor.fetchone()[0]
+    user_id = cursor.fetchone()['id']
 
     # Change the avatar filename to a unique one
     if avatar:
         avatar_filename = save_file(avatar, user_id)
-    else:
-        avatar_filename = 'default_avatar.png'
-
-    # Update the user's avatar name in the database
-    cursor.execute("UPDATE users SET avatar = %s WHERE email = %s", (avatar_filename, email))
-    conn.commit()
-
-    if cursor.rowcount == 0:
-        raise ValueError("Nie udało się zaktualizować awatara")
+        # Update the user's avatar name in the database
+        cursor.execute("UPDATE users SET avatar = %s WHERE email = %s", (avatar_filename, email))
+        conn.commit()
     
     cursor.close()
     conn.close()
     return "Awatar został zaktualizowany pomyślnie"
 
 
-def update_role_model(data):
+def update_role_by_id_model(data, user_id):
     conn = get_mysql_connection()
     cursor = conn.cursor()
 
     # Fetch the role ID based on the role name
-    cursor.execute("SELECT id FROM roles WHERE role_name = %s", (data['role'],))
+    cursor.execute("SELECT id FROM roles WHERE name = %s", (data['role'],))
     role_id = cursor.fetchone()[0]
 
     # Update the user's role
-    cursor.execute("UPDATE users SET role_id = %s WHERE id = %s", (role_id, data['user_id']))
+    cursor.execute("UPDATE users SET role_id = %s WHERE id = %s", (role_id, user_id))
     conn.commit()
 
     if cursor.rowcount == 0:

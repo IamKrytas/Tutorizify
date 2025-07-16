@@ -131,6 +131,33 @@ def get_my_teacher_profile_model(email):
     return result
 
 
+def get_most_popular_teachers_model():
+    conn = get_mysql_connection()
+    cursor = conn.cursor(dictionary=True)
+    query = """
+        SELECT 
+            teachers.id,
+            teachers.name,
+            users.avatar AS avatar,
+            subjects.name AS subject_name,
+            subject_level.name AS level,
+            teachers.price,
+            teachers.rating
+        FROM teachers
+        JOIN subject_level ON teachers.level_id = subject_level.id
+        JOIN subjects ON teachers.subject = subjects.id
+        JOIN users ON teachers.user_id = users.id
+        ORDER BY teachers.rating DESC 
+        LIMIT 5
+    """
+    cursor.execute(query)
+    result = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+    return result
+
+
 def update_my_teacher_profile_model(data, email):
     conn = get_mysql_connection()
     cursor = conn.cursor(dictionary=True)
@@ -222,42 +249,3 @@ def update_status_teacher_by_id_model(teacher_id):
     cursor.close()
     conn.close()
     return "Status nauczyciela zmieniony pomyślnie"
-
-
-def delete_teacher_by_id_model(teacher_id):
-    conn = get_mysql_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    # Delete all reservations for the teacher
-    cursor.execute("DELETE FROM bookings WHERE teacher_id = %s", (teacher_id,))
-
-    if cursor.rowcount == 0:
-        raise ValueError("Nie znaleziono rezerwacji dla tego nauczyciela")
-
-    # Delete all ratings for the teacher
-    cursor.execute("DELETE FROM ratings WHERE teacher_id = %s", (teacher_id,))
-    
-    if cursor.rowcount == 0:
-        raise ValueError("Nie znaleziono ocen dla tego nauczyciela")
-
-    # Add norification for the teacher
-    cursor.execute("INSERT INTO notifications (user_id, message) VALUES ((SELECT user_id FROM teachers WHERE id = %s), 'Twoje konto nauczycielskie zostało usunięte')", (teacher_id ,))
-    
-    if cursor.rowcount == 0:
-        raise ValueError("Nie udało się dodać powiadomienia o usunięciu konta nauczyciela")
-
-    # Set role to user
-    cursor.execute("UPDATE users SET role_id = 3 WHERE email = (SELECT email FROM teachers WHERE id = %s)", (teacher_id,))
-    
-    if cursor.rowcount == 0:
-        raise ValueError("Nie udało się zaktualizować roli użytkownika")
-
-    # Delete the teacher
-    cursor.execute("DELETE FROM teachers WHERE id = %s", (teacher_id,))
-
-    if cursor.rowcount == 0:
-        raise ValueError("Nie znaleziono nauczyciela o podanym ID")
-
-    cursor.close()
-    conn.close()
-    return "Nauczyciel usunięty pomyślnie"

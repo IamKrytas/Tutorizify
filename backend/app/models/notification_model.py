@@ -14,9 +14,6 @@ def get_notifications_model(email):
     cursor.execute("SELECT * FROM notifications WHERE user_id = %s", (user_id,))
     notifications = cursor.fetchall()
 
-    if not notifications:
-        raise ValueError("Nie znaleziono powiadomień dla tego użytkownika")
-
     cursor.close()
     conn.close()
     return notifications

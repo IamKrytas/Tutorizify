@@ -14,7 +14,7 @@ def get_all_subjects_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Get All Subjects: {e}")
         return jsonify({'message': 'Internal server error'}), 500
 
 
@@ -27,7 +27,7 @@ def get_all_levels_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Get All Levels: {e}")
         return jsonify({'message': 'Internal server error'}), 500
 
 
@@ -42,20 +42,20 @@ def add_subject_controller():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Add Subject: {e}")
         return jsonify({'message': 'Internal server error'}), 500
 
 
-@subject_bp.route('/update_subject', methods=['PUT'])
+@subject_bp.route('/update_subject/<subject_id>', methods=['PUT'])
 @require_token
 @require_role(1)
-def update_subject_controller():
+def update_subject_by_id_controller(subject_id):
     data = request.get_json()
     try:
-        result = update_subject_service(data)
+        result = update_subject_by_id_service(data, subject_id)
         return jsonify({'message': result}), 200
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except Exception as e:
-        print(f"[ERROR] Login: {e}")
+        print(f"[ERROR] Update Subject: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
