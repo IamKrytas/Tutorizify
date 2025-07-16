@@ -8,8 +8,8 @@ export const getAllBookingsController = async () => {
     return await getAllBookingsService();
 }
 
-export const getCurrentBookingController = async (bookingId) => {
-    return await getCurrentBookingService(bookingId);
+export const getCurrentBookingController = async () => {
+    return await getCurrentBookingService();
 }
 
 export const getMyTeacherBookingsController = async () => {
