@@ -64,14 +64,18 @@ export const refreshTokenService = async () => {
         const data = await response.json();
 
         if (response.status !== 200) {
-            throw new Error(data.message || "Token refresh failed");
+            logoutUserService();
+            window.location.href = "/home";
+            return null;
         }
 
         return data;
 
     } catch (error) {
         console.error("Token refresh error:", error);
-        throw error;
+        logoutUserService();
+        window.location.href = "/home";
+        return null;
     }
 }
 
@@ -106,7 +110,7 @@ export const registerTeacherService = async (teacherData) => {
     }
 }
 
-export const logoutUserService = async () => {
+export const logoutUserService = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("role");

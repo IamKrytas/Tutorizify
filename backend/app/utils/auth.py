@@ -29,9 +29,9 @@ def decode_token(token):
         payload = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=["HS256"])
         return payload
     except jwt.ExpiredSignatureError:
-        return None
+        raise ValueError("Token wygasł")
     except jwt.InvalidTokenError:
-        return None
+        raise ValueError("Nieprawidłowy token")
     
     
 def get_current_user_email():

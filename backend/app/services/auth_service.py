@@ -1,7 +1,6 @@
 from app.models.auth_model import *
 from app.utils.auth import generate_access_token, generate_refresh_token
 from app.utils.auth import decode_token, get_current_user_email
-import time
 
 
 def login_service(data):
@@ -32,12 +31,6 @@ def refresh_token_service(data):
     
     payload = decode_token(refresh_token)
 
-    if not payload:
-        raise ValueError("Nieprawidłowy token odświeżający")
-    
-    if payload["exp"] < time.time():
-        raise ValueError("Token odświeżający wygasł")
-    
     user = {
         'id': payload.get('user_id'),
         'email': payload.get('email'),

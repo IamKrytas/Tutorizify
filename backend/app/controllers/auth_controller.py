@@ -44,7 +44,7 @@ def refresh_token_controller():
         return jsonify({'message': 'Token odświeżony pomyślnie',
                         'access_token': new_access_token}), 200
     except ValueError as e:
-        return jsonify({'message': str(e)}), 400
+        return jsonify({'message': str(e)}), 401
     except Exception as e:
         print(f"[ERROR] Odświeżanie tokena: {e}")
         return jsonify({'message': 'Wystąpił błąd wewnętrzny serwera'}), 500
