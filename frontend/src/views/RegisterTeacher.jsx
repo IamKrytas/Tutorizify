@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Card, Row, Col, Form, Button } from 'react-bootstrap';
-// Register icon
 import { PersonPlus } from 'react-bootstrap-icons';
 import { getAllSubjectsController, getAllLevelsController } from '../controllers/subjectController';
 import { registerTeacherController } from '../controllers/authController';
@@ -177,12 +176,13 @@ function RegisterTeacher() {
                         <Form.Group controlId="price" className="mb-3 text-center">
                             <Form.Label className="fw-bold">Cena (PLN/H)</Form.Label>
                             <Form.Control
-                                type="number"
                                 placeholder="Wprowadź cenę"
                                 value={price}
                                 onChange={e => setPrice(e.target.value)}
                                 className="text-center mx-auto"
                                 style={{ maxWidth: '600px' }}
+                                type="number"
+                                min="0"
                                 required
                             />
                         </Form.Group>

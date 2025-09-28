@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal, Button, Card, Container, Row, Col, Form, Spinner } from 'react-bootstrap';
 import { CheckCircle, XCircle } from 'react-bootstrap-icons';
 import { getUsersController, updateUserRoleController } from '../controllers/userController';
@@ -153,7 +153,7 @@ function AdminManageUsersScreen() {
                                     <strong>E-mail:</strong> {selectedUser.email}
                                 </p>
                                 <p>
-                                    <strong>Data rejestracji:</strong> {selectedUser.registrationDate}
+                                    <strong>Data rejestracji:</strong> {new Date(selectedUser.registrationDate).toLocaleString() }
                                 </p>
                                 <p>
                                     <strong>Aktualna rola:</strong> {selectedUser.role}

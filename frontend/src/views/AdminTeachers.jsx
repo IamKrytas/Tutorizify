@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Modal, Button, Card, Container, Row, Col, ListGroup, Accordion, Spinner } from 'react-bootstrap';
-import { CheckCircle, Trash, Ban, XCircle } from 'react-bootstrap-icons';
+import { useEffect, useState } from 'react';
+import { Modal, Button, Container, Row, Col, ListGroup, Accordion, Spinner } from 'react-bootstrap';
+import { CheckCircle, Ban, XCircle } from 'react-bootstrap-icons';
 import { getAllTeachersController, updateStatusTeacherByIdController } from '../controllers/teacherController';
 import RenderStars from '../components/RenderStars';
 import CustomDialog from "../components/CustomDialog";

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Alert, Spinner } from 'react-bootstrap';
 import moment from 'moment';
 import { getAllBookingsController } from '../controllers/bookingController';
@@ -69,7 +69,7 @@ const AdminManageBookingsScreen = () => {
             <Row className="text-center mb-4">
                 <Col>
                     <h3>Zarządzaj rezerwacjami</h3>
-                    <p className="text-muted">Tutaj możesz zarządzać rezerwacjami użytkowników</p>
+                    <p className="text-muted">Tutaj możesz przeglądać rezerwacje wszystkich użytkowników</p>
                 </Col>
             </Row>
 
@@ -79,29 +79,36 @@ const AdminManageBookingsScreen = () => {
                 </div>
             ) : (
                 <div>
-                    <Row>
-                        <Col className="text-center">
-                            <h3>Przyszłe rezerwacje</h3>
+                    {/* Przyszłe rezerwacje */}
+                    <Row className="mb-4">
+                        <Col>
+                            <h3 className="text-center mb-3">Przyszłe rezerwacje</h3>
                             {futureBookings.length > 0 ? (
                                 futureBookings.map((booking) => renderBookingCard(booking))
                             ) : (
-                                <Alert variant="info">Brak przyszłych rezerwacji</Alert>
+                                <Alert variant="info" className="text-center">
+                                    Brak przyszłych rezerwacji
+                                </Alert>
                             )}
                         </Col>
                     </Row>
 
-                    <Row className="mt-4">
-                        <Col className="text-center">
-                            <h3>Historyczne rezerwacje</h3>
+                    {/* Historyczne rezerwacje */}
+                    <Row>
+                        <Col>
+                            <h3 className="text-center mb-3">Historyczne rezerwacje</h3>
                             {pastBookings.length > 0 ? (
                                 pastBookings.map((booking) => renderBookingCard(booking))
                             ) : (
-                                <Alert variant="info">Brak historycznych rezerwacji</Alert>
+                                <Alert variant="info" className="text-center">
+                                    Brak historycznych rezerwacji
+                                </Alert>
                             )}
                         </Col>
                     </Row>
                 </div>
             )}
+
         </Container>
     );
 };

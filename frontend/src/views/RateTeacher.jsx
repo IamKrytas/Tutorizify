@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Container, Form, Button, Alert, Row, Col } from 'react-bootstrap';
+import { useState } from 'react';
+import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { StarFill, Star } from 'react-bootstrap-icons';
 import { addRateByIdController } from '../controllers/ratesController';

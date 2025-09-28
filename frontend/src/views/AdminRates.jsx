@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, Spinner, Alert } from 'react-bootstrap';
 import { Trash } from 'react-bootstrap-icons';
 import { getAllRatesController, deleteRateByIdController } from '../controllers/ratesController';
@@ -50,23 +50,43 @@ const AdminManageRatesScreen = () => {
         setShowDeleteDialog(true);
     };
 
-    // Funkcja renderująca ocenę
     const renderRateCard = (rate) => (
         <Card className="mb-3 shadow-sm" key={rate.id}>
-            <Card.Body className="d-flex justify-content-between align-items-center">
-                <div>
+            <Card.Body className="d-flex justify-content-between">
+                <div className="me-3 flex-grow-1">
+                    {/* Nagłówek nauczyciela */}
                     <Card.Title className="mb-1">{rate.teacher_name}</Card.Title>
-                    <Card.Text className="text-muted mb-1">Oceniający: {rate.user_name}</Card.Text>
-                    <Card.Text className="text-muted mb-1">Data: {rate.date}</Card.Text>
-                    <RenderStars rating={rate.rating} />
-                    <Card.Text className="mt-2">Komentarz: {rate.comment}</Card.Text>
+
+                    {/* Ocena i autor */}
+                    <div className="d-flex align-items-center mb-1">
+                        <RenderStars rating={rate.rating} />
+                        <Card.Text className="text-muted ms-2 mb-0">Oceniający: {rate.user_name}</Card.Text>
+                    </div>
+
+                    {/* Data */}
+                    <Card.Text className="text-muted mb-2">{new Date(rate.date).toLocaleString()}</Card.Text>
+
+                    {/* Komentarz – wyświetlany tylko jeśli istnieje */}
+                    {rate.comment ? (
+                        <Card.Text className="border rounded p-2 bg-light">{rate.comment}</Card.Text>
+                    ) : (
+                        <Card.Text className="text-muted fst-italic">Brak komentarza</Card.Text>
+                    )}
                 </div>
-                <Button variant="danger" size="sm" onClick={() => handleDeleteComment(rate.id)}>
-                    <Trash className="me-1" /> Usuń
-                </Button>
+
+                {/* Przycisk Usuń */}
+                <div className="d-flex align-items-start">
+                    <Button
+                        variant="outline-danger"
+                        onClick={() => handleDeleteComment(rate.id)}
+                    >
+                        <Trash className="me-1" /> Usuń
+                    </Button>
+                </div>
             </Card.Body>
         </Card>
     );
+
 
     return (
         <Container className="my-4">

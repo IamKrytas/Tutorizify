@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Modal } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { getMyTeacherBookingsController, deleteMyTeacherBookingByIdController } from '../controllers/bookingController';
 import CustomDialog from '../components/CustomDialog';
 import { toast } from 'react-toastify';

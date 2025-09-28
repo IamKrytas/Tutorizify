@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Card, Container, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import { getAboutByIdController } from '../controllers/teacherController';
 import { getRatesByIdController } from '../controllers/ratesController';
-
 import RenderStars from '../components/RenderStars';
 import { Calendar3, ArrowLeft } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
@@ -48,13 +47,13 @@ const TeacherProfile = () => {
     }
 
     if (loading) {
-        return <Spinner animation="border" variant="primary"  className="d-block mx-auto mt-5" />;
+        return <Spinner animation="border" variant="primary" className="d-block mx-auto mt-5" />;
     }
 
     return (
         <Container className="mt-4 mb-4" style={{ maxWidth: '800px' }}>
             {teacher ? (
-                <Card className="p-4 shadow-sm">
+                <Card className="p-4 shadow-md">
                     <Row className="justify-content-center mb-2">
                         <Col xs="auto">
                             <Card.Img
@@ -96,11 +95,11 @@ const TeacherProfile = () => {
                         <p>{teacher.description}</p>
                     </Card.Body>
                     <div className="text-center">
-                        <Button variant="success" className="me-2 p-2 fs-5" onClick={() => navigate(`/bookings/${teacher.id}`)}>
+                        <Button variant="outline-primary" className="me-2 p-2 fs-5" onClick={() => navigate(`/bookings/${teacher.id}`)}>
                             <Calendar3 size={22} className="me-2" />
                             Zarezerwuj lekcję
                         </Button>
-                        <Button variant="outline-primary" className='me-2 p-2 fs-5' onClick={() => navigate(-1)}>
+                        <Button variant="outline-danger" className='me-2 p-2 fs-5' onClick={() => navigate(-1)}>
                             <ArrowLeft size={22} className="me-2" />
                             Powrót
                         </Button>
@@ -115,16 +114,14 @@ const TeacherProfile = () => {
                     {rates.map((rate, index) => (
                         <Card key={index} className="p-3 mt-3 shadow-sm">
                             <Card.Body>
-                                <Card.Subtitle className="mb-2 text-muted">{new Date(rate.createdAt).toLocaleDateString('pl-PL', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                })}</Card.Subtitle>
+                                <Card.Subtitle className="mb-2 text-muted">{new Date(rate.createdAt).toLocaleString()}</Card.Subtitle>
                                 <Card.Title>{rate.username}</Card.Title>
                                 <Card.Text><RenderStars rating={rate.rating} /></Card.Text>
-                                <Card.Text>{rate.comment}</Card.Text>
+                                {rate.comment ? (
+                                    <Card.Text className="border rounded p-2 bg-light">{rate.comment}</Card.Text>
+                                ) : (
+                                    <Card.Text className="text-muted fst-italic">Brak komentarza</Card.Text>
+                                )}
                             </Card.Body>
                         </Card>
                     ))}

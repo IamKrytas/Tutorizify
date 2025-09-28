@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Modal, Form, Card, Container, Row, Col, Spinner } from 'react-bootstrap';
 import { Pencil, PlusCircle } from 'react-bootstrap-icons';
 import { getAllSubjectsController, addSubjectController, updateSubjectController } from '../controllers/subjectController';

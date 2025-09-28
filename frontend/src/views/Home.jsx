@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Container, Row, Col, Card, Modal } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { Button, Container, Row, Col, Card } from 'react-bootstrap';
 import { Calendar3, People, Briefcase, Book, Search } from 'react-bootstrap-icons';
 import { getMostPopularTeachersController } from '../controllers/teacherController';
 import { getTotalStatsController } from '../controllers/statsController';

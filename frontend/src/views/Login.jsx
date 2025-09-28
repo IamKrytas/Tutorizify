@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Container, Form, Button, Row, Col, Card } from 'react-bootstrap';
 import { loginUserController } from '../controllers/authController';
 import { toast } from 'react-toastify';

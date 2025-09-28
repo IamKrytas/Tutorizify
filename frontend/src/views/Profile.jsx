@@ -9,7 +9,6 @@ import { getAllSubjectsController, getAllLevelsController } from '../controllers
 import { logoutUserController } from '../controllers/authController';
 import { Book, Briefcase, Calendar3, CheckCircle, Pencil, PersonPlus, XCircle, People, Trash, BoxArrowRight, Key, Award } from 'react-bootstrap-icons';
 
-
 export default function Profile() {
     // Dane użytkownika
     const [email, setEmail] = useState('');
@@ -203,7 +202,7 @@ export default function Profile() {
     // Funkcja do potwierdzenia zapisu zmian profilu nauczyciela
     const handleConfirmSaveProfileTeacher = async () => {
         if (typeof teacherName !== 'string' || teacherName.trim().length < 6 || teacherPrice <= 0 || !teacherSubject) {
-            toast.error('Imię i nazwisko musi mieć minimum 6 znaków, a cena i przedmiot nie mogą być puste.');
+            toast.error('Imię i nazwisko musi mieć minimum 6 znaków, cena i przedmiot nie mogą być puste oraz musi być wybrany przedmiot oraz poziom nauczania');
             setIsConfirmProfileTeacherDialogVisible(false);
             return;
         }
@@ -366,16 +365,26 @@ export default function Profile() {
 
                 <Row className="text-center mb-3">
                     <Col>
-                        <Button variant="outline-primary" onClick={handleEditProfile} className="transparent-btn me-2">
+                        <Button
+                            variant={editProfile ? "outline-success" : "outline-primary"}
+                            onClick={handleEditProfile}
+                            className="transparent-btn me-2"
+                        >
                             {editProfile ? <CheckCircle size={28} /> : <Pencil size={28} />}
                         </Button>
+
                         {editProfile && (
-                            <Button variant="outline-danger" onClick={() => setEditProfile(false)} className="transparent-btn">
+                            <Button
+                                variant="outline-danger"
+                                onClick={() => setEditProfile(false)}
+                                className="transparent-btn"
+                            >
                                 <XCircle size={28} />
                             </Button>
                         )}
                     </Col>
                 </Row>
+
 
                 {/* Username Field */}
                 <div className="d-flex flex-column align-items-center">
@@ -410,13 +419,7 @@ export default function Profile() {
                 {/* Registration Date */}
                 <div className="mb-2">
                     <h5 style={{ fontWeight: 'bold', color: '#333' }}>Data rejestracji:</h5>
-                    <p style={{ color: '#666' }}>{new Date(registrationDate).getDate()} {new Date(registrationDate).toLocaleString('pl-PL', {
-                        year: 'numeric',
-                        month: 'long',
-                        minute: '2-digit',
-                        hour: '2-digit',
-
-                    })}</p>
+                    <p style={{ color: '#666' }}>{new Date(registrationDate).toLocaleString()}</p>
                 </div>
             </Card>
 
@@ -429,11 +432,21 @@ export default function Profile() {
 
                     <Row className="text-center mb-3">
                         <Col>
-                            <Button variant="outline-primary" onClick={handleEditProfileTeacher} className="transparent-btn me-2">
+                            <Button
+                                variant={editTeacherProfile ? "outline-success" : "outline-primary"}
+                                onClick={handleEditProfileTeacher}
+                                className="transparent-btn me-2"
+                            >
                                 {editTeacherProfile ? <CheckCircle size={28} /> : <Pencil size={28} />}
                             </Button>
+
+
                             {editTeacherProfile && (
-                                <Button variant="outline-danger" onClick={() => setEditTeacherProfile(false)} className="transparent-btn">
+                                <Button
+                                    variant="outline-danger"
+                                    onClick={() => setEditTeacherProfile(false)}
+                                    className="transparent-btn"
+                                >
                                     <XCircle size={28} />
                                 </Button>
                             )}
@@ -574,7 +587,7 @@ export default function Profile() {
                     {/* Status */}
                     <div className="mb-2">
                         <h5 style={{ fontWeight: 'bold', color: '#333' }}>Status:</h5>
-                        <p style={{ color: '#666' }}>{teacherStatus === 1 ? 'Aktywny' : 'Nieaktywny'}</p>
+                        <p style={{ color: '#666' }}>{teacherStatus === 0 ? 'Nieaktywny' : 'Aktywny'}</p>
                     </div>
                 </Card>
 

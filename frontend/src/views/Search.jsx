@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Card, Form, Col, Row, Spinner, Container, InputGroup, FormControl } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { Button, Card, Col, Row, Spinner, Container, InputGroup, FormControl } from 'react-bootstrap';
 import { getTeachersController } from '../controllers/teacherController';
 import { getAllSubjectsController, getAllLevelsController } from '../controllers/subjectController';
 import RenderStars from '../components/RenderStars';
@@ -124,26 +124,34 @@ export default function Search() {
             {/* Wyszukiwarka */}
             <Row className="mb-4">
                 <Col xs={12} md={8} className="mx-auto">
-                    <InputGroup>
+                    <InputGroup className="shadow-sm">
                         <FormControl
                             type="text"
                             placeholder="🔍 Wyszukaj nauczyciela lub przedmiot"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="shadow-sm px-3 py-2"
+                            className="px-3 py-2"
                         />
+
                         {searchQuery && (
                             <Button
                                 variant="outline-danger"
                                 onClick={ResetFilters}
-                                style={{ borderLeft: 'none' }}
                             >
                                 <XCircle size={20} />
                             </Button>
                         )}
+
+                        {/* <Button
+                            variant="outline-primary"
+                            title="Inteligentne wyszukiwanie dzięki AI"
+                        >
+                            <Stars size={20} />
+                        </Button> */}
                     </InputGroup>
                 </Col>
             </Row>
+
 
 
             {/* Filtruj według przedmiotu */}

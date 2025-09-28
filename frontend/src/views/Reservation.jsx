@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Row, Col, Button, Alert, Card, Spinner } from 'react-bootstrap';
 import moment from 'moment';
 import { getMyBookingsController, deleteBookingByIdController } from '../controllers/bookingController';
 import { useNavigate } from 'react-router-dom';
 import CustomDialog from '../components/CustomDialog';
+import { Check, FileText, ListUl, XCircle } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 
 const Reservation = () => {
@@ -106,6 +107,7 @@ const Reservation = () => {
                 <Row className="mb-3">
                     <Col>
                         <Button variant="outline-primary" onClick={() => navigate('/bookings/manage')}>
+                            <ListUl size={22} className="me-2" />
                             Zarządzaj rezerwacjami do mnie
                         </Button>
                     </Col>
@@ -132,6 +134,7 @@ const Reservation = () => {
                                         onClick={() => showConfirmationDialog(item)}
                                         disabled={!canCancelBooking(`${item.date} ${item.start_time}`)}
                                     >
+                                    <XCircle size={22} className="me-2" />
                                         Anuluj
                                     </Button>
                                 </Card.Body>
@@ -157,11 +160,13 @@ const Reservation = () => {
                                         <div>Cena: {(item.price * item.duration / 60).toFixed(2).replace('.', ',')} PLN</div>
                                     </Card.Text>
                                     {item.has_rated ? (
-                                        <Button variant="outline-success" disabled>
+                                        <Button variant="success" disabled>
+                                            <Check size={22} className="me-2" />
                                             Oceniono
                                         </Button>
                                     ) : (
                                         <Button variant="outline-warning" onClick={() => navigate(`/teachers/rates/${item.teacher_id}`)}>
+                                            <FileText size={22} className="me-2" />
                                             Oceń
                                         </Button>
                                     )}
